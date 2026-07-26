@@ -55,7 +55,7 @@ const FEATURES: FeatureCard[] = [
   {
     icon: ListChecks,
     title: "Practice real situations",
-    body: "Work through five short age, helmet, sidewalk, park and stopping-distance decisions.",
+    body: "Work through six short age, helmet, sidewalk, park and stopping-distance decisions.",
     linkLabel: "Start scenarios",
     to: "/scenarios",
   },
