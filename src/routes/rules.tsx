@@ -9,7 +9,11 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/rules")({
   validateSearch: (search: Record<string, unknown>) => ({
-    class: typeof search.class === "string" ? search.class : undefined,
+    // TanStack parses `?class=3` as the number 3, so accept both shapes.
+    class:
+      typeof search.class === "string" || typeof search.class === "number"
+        ? String(search.class)
+        : undefined,
   }),
   head: () => ({
     meta: [
