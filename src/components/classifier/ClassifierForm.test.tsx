@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   RouterProvider,
   createMemoryHistory,
@@ -110,21 +110,20 @@ function renderClassifyRoute() {
     routeTree,
     history: createMemoryHistory({ initialEntries: ["/classify"] }),
   });
-  act(() => {
-    render(<RouterProvider router={router as never} />);
-  });
+  render(<RouterProvider router={router as never} />);
+  return screen.findByRole("heading", { level: 1 });
 }
 
 /** Walks the stepped form and submits. */
-function runFlow(fill: () => void) {
-  renderClassifyRoute();
+async function runFlow(fill: () => void) {
+  await renderClassifyRoute();
   fill();
   fireEvent.click(screen.getByRole("button", { name: "Check classification" }));
 }
 
 describe("Outcomes are unchanged by the stepped flow", () => {
-  it("Class 1", () => {
-    runFlow(() => {
+  it("Class 1", async () => {
+    await runFlow(() => {
       setTri(/fully operable pedals/i, "Yes");
       typeNumber("motor-watts", "250");
       fireEvent.click(nextButton());
@@ -137,8 +136,8 @@ describe("Outcomes are unchanged by the stepped flow", () => {
     expect(screen.getByRole("heading", { name: /Class 1/i })).toBeTruthy();
   });
 
-  it("Class 2", () => {
-    runFlow(() => {
+  it("Class 2", async () => {
+    await runFlow(() => {
       setTri(/fully operable pedals/i, "Yes");
       typeNumber("motor-watts", "750");
       fireEvent.click(nextButton());
@@ -152,8 +151,8 @@ describe("Outcomes are unchanged by the stepped flow", () => {
     expect(screen.getByRole("heading", { name: /Class 2/i })).toBeTruthy();
   });
 
-  it("Class 3", () => {
-    runFlow(() => {
+  it("Class 3", async () => {
+    await runFlow(() => {
       setTri(/fully operable pedals/i, "Yes");
       typeNumber("motor-watts", "500");
       fireEvent.click(nextButton());
@@ -166,16 +165,16 @@ describe("Outcomes are unchanged by the stepped flow", () => {
     expect(screen.getByRole("heading", { name: /Class 3/i })).toBeTruthy();
   });
 
-  it("Needs Verification with the untouched defaults", () => {
-    runFlow(() => {
+  it("Needs Verification with the untouched defaults", async () => {
+    await runFlow(() => {
       fireEvent.click(nextButton());
       fireEvent.click(nextButton());
     });
     expect(screen.getByRole("heading", { name: /Needs Verification/i })).toBeTruthy();
   });
 
-  it("Does Not Meet Definition when there are no pedals", () => {
-    runFlow(() => {
+  it("Does Not Meet Definition when there are no pedals", async () => {
+    await runFlow(() => {
       setTri(/fully operable pedals/i, "No");
       fireEvent.click(nextButton());
       fireEvent.click(nextButton());
@@ -186,8 +185,8 @@ describe("Outcomes are unchanged by the stepped flow", () => {
 });
 
 describe("Result actions and handoff", () => {
-  function reachClass1Result() {
-    runFlow(() => {
+  async function reachClass1Result() {
+    await runFlow(() => {
       setTri(/fully operable pedals/i, "Yes");
       typeNumber("motor-watts", "250");
       fireEvent.click(nextButton());
@@ -199,8 +198,8 @@ describe("Result actions and handoff", () => {
     });
   }
 
-  it("Edit answers returns to Step 1 with values preserved", () => {
-    reachClass1Result();
+  it("Edit answers returns to Step 1 with values preserved", async () => {
+    await reachClass1Result();
     fireEvent.click(screen.getByRole("button", { name: "Edit answers" }));
     expect(screen.getByText(stepProgressText(0))).toBeTruthy();
     expect((document.getElementById("motor-watts") as HTMLInputElement).value).toBe("250");
@@ -208,8 +207,8 @@ describe("Result actions and handoff", () => {
     expect((document.getElementById("pedal-assist-speed") as HTMLInputElement).value).toBe("20");
   });
 
-  it("Start over resets to the defaults and returns to Step 1", () => {
-    reachClass1Result();
+  it("Start over resets to the defaults and returns to Step 1", async () => {
+    await reachClass1Result();
     fireEvent.click(screen.getByRole("button", { name: "Start over" }));
     expect(screen.getByText(stepProgressText(0))).toBeTruthy();
     expect((document.getElementById("motor-watts") as HTMLInputElement).value).toBe("");
@@ -220,8 +219,8 @@ describe("Result actions and handoff", () => {
     expect(unsure.getAttribute("aria-checked")).toBe("true");
   });
 
-  it("keeps the Rider Rules handoff on a class result", () => {
-    reachClass1Result();
+  it("keeps the Rider Rules handoff on a class result", async () => {
+    await reachClass1Result();
     const link = screen.getByRole("link", { name: /Check rules for this rider/i });
     expect(link.getAttribute("href")).toContain("/rules");
     expect(link.getAttribute("href")).toContain("class=1");
