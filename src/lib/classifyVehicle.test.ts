@@ -55,18 +55,36 @@ describe("classifyVehicle", () => {
     expect(result.code).toBe("class-3");
   });
 
-  // 4. Same as case 3 but no speedometer — Class 3 requires one.
-  it("Case 4 — 28 mph pedal assist without speedometer => Needs Verification", () => {
+  // 4. Same as case 3 but unsure about the speedometer.
+  it("Case 4 — 28 mph pedal assist, unsure about speedometer => Needs Verification", () => {
+    const result = classifyVehicle(
+      v({ maxPedalAssistedSpeedMph: { known: true, value: 28 }, hasSpeedometer: "unsure" }),
+    );
+    expect(result.code).toBe("needs-verification");
+  });
+
+  // 4b. Class 3 speeds but no speedometer — § 312.5(a)(3) requires one.
+  it("Case 4b — 28 mph pedal assist without speedometer => Does Not Meet Definition", () => {
     const result = classifyVehicle(
       v({ maxPedalAssistedSpeedMph: { known: true, value: 28 }, hasSpeedometer: "no" }),
     );
-    expect(result.code).toBe("needs-verification");
+    expect(result.code).toBe("not-an-ebike");
+    expect(result.explanation).toContain("312.5(a)(3)");
   });
 
   // 5. Electric scooter-style vehicle with no pedals.
   it("Case 5 — no operable pedals => Does Not Meet Definition", () => {
     const result = classifyVehicle(v({ hasOperablePedals: "no" }));
     expect(result.code).toBe("not-an-ebike");
+  });
+
+  // 5b. No-pedals result must not contain a blanket path/lane/sidewalk ban.
+  it("Case 5b — no operable pedals result has no blanket path prohibition", () => {
+    const result = classifyVehicle(v({ hasOperablePedals: "no" }));
+    const text = [result.explanation, ...result.warnings].join(" ").toLowerCase();
+    expect(text).not.toContain("bike paths, bike lanes");
+    expect(text).not.toContain("sidewalks is generally not allowed");
+    expect(result.explanation).toContain("fully operable pedals");
   });
 
   // 6. Over the 750 W power ceiling.

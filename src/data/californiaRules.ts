@@ -76,7 +76,7 @@ export const CA_SOURCES = [
   },
   {
     label: "Electric bicycle operation, helmet and age rules",
-    citation: "California Vehicle Code § 21213 – 21213.5",
+    citation: "California Vehicle Code § 21213",
     url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=21213",
   },
   {
