@@ -222,10 +222,12 @@ export function RiderRules({
 function RiderResultCard({
   result,
   localRules,
+  classSelection,
   onEdit,
 }: {
   result: RiderRulesResult;
   localRules: LocalRulesResult | null;
+  classSelection: RiderClassSelection;
   onEdit: () => void;
 }) {
   return (
