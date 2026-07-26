@@ -14,7 +14,7 @@ electric-bicycle law and safety in California. It has three working modules:
 | --- | --- | --- |
 | **Class Checker** (default) | `/` (`src/routes/index.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
-| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result. Statewide only — no city or local data. |
+| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for four verified Orange County cities (Anaheim, Cypress, Garden Grove, Stanton). A city selection never changes the statewide result. |
 
 Navigation between the three lives in the root layout, `src/routes/__root.tsx`.
 
