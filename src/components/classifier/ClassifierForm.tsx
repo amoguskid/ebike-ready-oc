@@ -207,6 +207,7 @@ export function ClassifierForm({
       <div className="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
         {isLast ? (
           <button
+            key="submit"
             type="submit"
             className="min-h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground shadow-lift transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:flex-1"
           >
@@ -214,6 +215,7 @@ export function ClassifierForm({
           </button>
         ) : (
           <button
+            key="next"
             type="button"
             onClick={() => goTo(stepIndex + 1)}
             className="min-h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground shadow-lift transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:flex-1"
