@@ -3,9 +3,10 @@ import { ShieldCheck } from "lucide-react";
 import { RiderRules } from "@/components/rules/RiderRules";
 import { parseRulesClassParam } from "@/lib/classHandoff";
 
-const TITLE = "Rider Rules — California Statewide Age & Helmet Check";
+const TITLE = "Ride Check — Can This Rider Ride Here? | E-Bike Ready OC";
 const DESCRIPTION =
-  "Enter a rider's age and e-bike class to see California's statewide age and helmet requirements, with links to the official Vehicle Code sections.";
+  "Combine rider age, e-bike class, city, planned riding location and helmet status to check the verified California statewide and Orange County local rules in this app.";
+
 
 export const Route = createFileRoute("/rules")({
   validateSearch: (search: Record<string, unknown>) => ({
