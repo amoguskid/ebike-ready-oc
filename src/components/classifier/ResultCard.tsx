@@ -1,5 +1,15 @@
-import { AlertTriangle, ArrowLeft, BadgeCheck, ExternalLink, HelpCircle, Info } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  ExternalLink,
+  HelpCircle,
+  Info,
+} from "lucide-react";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
+import { toRulesClassParam } from "@/lib/classHandoff";
 import { cn } from "@/lib/utils";
 import type { ClassificationCode, ClassificationResult } from "@/types/vehicle";
 
@@ -52,6 +62,8 @@ export function ResultCard({
 }) {
   const tone = TONE[result.code];
   const Icon = tone.icon;
+  const handoffClass = toRulesClassParam(result.code);
+
 
   return (
     <section aria-live="polite" className="space-y-4">
@@ -132,6 +144,19 @@ export function ResultCard({
           </ul>
         </div>
       </div>
+
+      {handoffClass ? (
+        <Link
+          to="/rules"
+          search={{ class: handoffClass }}
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          Check rules for this rider
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
+      ) : null}
+
+
 
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
         <p>{DISCLAIMER}</p>

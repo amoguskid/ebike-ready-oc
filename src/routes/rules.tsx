@@ -1,12 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { RiderRules } from "@/components/rules/RiderRules";
+import { parseRulesClassParam } from "@/lib/classHandoff";
 
 const TITLE = "Rider Rules — California Statewide Age & Helmet Check";
 const DESCRIPTION =
   "Enter a rider's age and e-bike class to see California's statewide age and helmet requirements, with links to the official Vehicle Code sections.";
 
 export const Route = createFileRoute("/rules")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    // TanStack parses `?class=3` as the number 3, so accept both shapes.
+    class:
+      typeof search.class === "string" || typeof search.class === "number"
+        ? String(search.class)
+        : undefined,
+  }),
   head: () => ({
     meta: [
       { title: TITLE },
@@ -21,6 +29,8 @@ export const Route = createFileRoute("/rules")({
 });
 
 function RulesPage() {
+  const { class: rawClass } = Route.useSearch();
+  const carriedOverClass = parseRulesClassParam(rawClass);
   return (
     <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-2 sm:px-6">
       <header className="mb-6">
@@ -37,7 +47,7 @@ function RulesPage() {
         </p>
       </header>
 
-      <RiderRules />
+      <RiderRules carriedOverClass={carriedOverClass} />
     </main>
   );
 }

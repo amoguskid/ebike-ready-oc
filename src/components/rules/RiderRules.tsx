@@ -17,7 +17,11 @@ import {
   LOCAL_RULES_CHANGE_NOTE,
   LOCAL_VS_CLASS_NOTE,
 } from "@/data/cityRules";
-import { LEGAL_EBIKE_ASSUMPTION, UNVERIFIED_CLASS_ASSUMPTION } from "@/data/riderRules";
+import {
+  CLASS_CARRIED_OVER_NOTE,
+  LEGAL_EBIKE_ASSUMPTION,
+  UNVERIFIED_CLASS_ASSUMPTION,
+} from "@/data/riderRules";
 import { getCoverageNote } from "@/lib/getCoverageNote";
 import { getLocalCityRules } from "@/lib/getLocalCityRules";
 import { getStatewideRiderRules, validateAge } from "@/lib/getStatewideRiderRules";
@@ -47,9 +51,17 @@ const HELMET_TONE = {
   "depends-on-class": "bg-caution-soft text-foreground",
 } as const;
 
-export function RiderRules() {
+export function RiderRules({
+  carriedOverClass = null,
+}: {
+  /** Class handed off from the Class Checker via `?class=`; null when absent/invalid. */
+  carriedOverClass?: RiderClassSelection | null;
+} = {}) {
   const [age, setAge] = useState("");
-  const [classSelection, setClassSelection] = useState<RiderClassSelection>("class-1");
+  const [classSelection, setClassSelection] = useState<RiderClassSelection>(
+    carriedOverClass ?? "class-1",
+  );
+  const [classCarriedOver, setClassCarriedOver] = useState(carriedOverClass !== null);
   const [cityId, setCityId] = useState<CityId>("statewide-only");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RiderRulesResult | null>(null);
@@ -140,6 +152,7 @@ export function RiderRules() {
                   aria-checked={selected}
                   onClick={() => {
                     setClassSelection(option.value);
+                    setClassCarriedOver(false);
                     clearResult();
                   }}
 
@@ -156,6 +169,12 @@ export function RiderRules() {
               );
             })}
           </div>
+          {classCarriedOver ? (
+            <p className="mt-2.5 flex gap-2 rounded-lg bg-info-soft px-3 py-2 text-sm leading-relaxed">
+              <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              {CLASS_CARRIED_OVER_NOTE}
+            </p>
+          ) : null}
         </FieldShell>
 
         <FieldShell label="City (optional)" hint={CITY_SELECT_HELPER} htmlFor="rider-city">
