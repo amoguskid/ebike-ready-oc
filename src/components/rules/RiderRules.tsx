@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowLeft,
+  CheckCircle2,
   ExternalLink,
   HardHat,
   Info,
   MapPin,
+  Octagon,
+  RotateCcw,
   Timer,
   UserCheck,
 } from "lucide-react";
@@ -20,19 +23,33 @@ import {
   LOCAL_VS_CLASS_NOTE,
 } from "@/data/cityRules";
 import {
+  HELMET_OPTIONS,
+  HELMET_QUESTION_HELPER,
+  LOCATION_REQUIRED_MESSAGE,
+  RIDE_LOCATION_HELPER,
+  RIDE_LOCATION_OPTIONS,
+} from "@/data/rideLocations";
+import {
   CLASS_CARRIED_OVER_NOTE,
   LEGAL_EBIKE_ASSUMPTION,
   UNVERIFIED_CLASS_ASSUMPTION,
 } from "@/data/riderRules";
+import { evaluateRideDecision } from "@/lib/evaluateRideDecision";
 import { getCoverageNote } from "@/lib/getCoverageNote";
 import { getLocalCityRules } from "@/lib/getLocalCityRules";
 import { getStatewideRiderRules, validateAge } from "@/lib/getStatewideRiderRules";
 import { cn } from "@/lib/utils";
 import type { CityId, LocalRulesResult } from "@/types/cityRules";
+import type {
+  CheckStatus,
+  DecisionRow,
+  HelmetAnswer,
+  RideDecision,
+  RideLocationId,
+} from "@/types/rideDecision";
 import type { RiderClassSelection, RiderRulesResult } from "@/types/riderRules";
 
-
-/** Presentation only — all statewide rule logic lives in getStatewideRiderRules.ts. */
+/** Presentation only — all legal logic lives in the lib/ modules. */
 
 const CLASS_OPTIONS: { value: RiderClassSelection; label: string }[] = [
   { value: "class-1", label: "Class 1" },
@@ -53,8 +70,6 @@ const STOPPING_ACTION_NOTE: Record<RiderClassSelection, string> = {
     "The class is unverified, so no speed is assumed for this vehicle. The simulator still lets you explore how stopping distance grows with speed.",
 };
 
-
-
 const AGE_TONE = {
   permitted: "bg-ok-soft text-foreground",
   "not-permitted": "bg-alert-soft text-foreground",
@@ -67,6 +82,49 @@ const HELMET_TONE = {
   "depends-on-class": "bg-caution-soft text-foreground",
 } as const;
 
+const VERDICT_TONE = {
+  "likely-permitted": "bg-ok-soft border-ok",
+  "do-not-ride": "bg-alert-soft border-alert",
+  verify: "bg-caution-soft border-caution",
+} as const;
+
+const VERDICT_ICON = {
+  "likely-permitted": CheckCircle2,
+  "do-not-ride": Octagon,
+  verify: AlertTriangle,
+} as const;
+
+/** Short, non-color status word for each trace row. */
+const ROW_MARK: Record<CheckStatus, string> = {
+  "resolved-ok": "OK",
+  blocked: "Stop",
+  unresolved: "Check",
+};
+
+const ROW_TONE: Record<CheckStatus, string> = {
+  "resolved-ok": "bg-ok-soft",
+  blocked: "bg-alert-soft",
+  unresolved: "bg-caution-soft",
+};
+
+const DEFAULTS = {
+  classSelection: "class-1" as RiderClassSelection,
+  cityId: "statewide-only" as CityId,
+  location: null as RideLocationId | null,
+  helmet: "not-sure" as HelmetAnswer,
+};
+
+/** Shared option-button styling for the radio-style groups. */
+function optionClass(selected: boolean) {
+  return cn(
+    "min-h-12 rounded-lg border px-3 text-base font-semibold transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    selected
+      ? "border-primary bg-primary text-primary-foreground"
+      : "border-border bg-card text-foreground hover:bg-secondary",
+  );
+}
+
 export function RiderRules({
   carriedOverClass = null,
 }: {
@@ -75,33 +133,60 @@ export function RiderRules({
 } = {}) {
   const [age, setAge] = useState("");
   const [classSelection, setClassSelection] = useState<RiderClassSelection>(
-    carriedOverClass ?? "class-1",
+    carriedOverClass ?? DEFAULTS.classSelection,
   );
   const [classCarriedOver, setClassCarriedOver] = useState(carriedOverClass !== null);
-  const [cityId, setCityId] = useState<CityId>("statewide-only");
+  const [cityId, setCityId] = useState<CityId>(DEFAULTS.cityId);
+  const [location, setLocation] = useState<RideLocationId | null>(DEFAULTS.location);
+  const [helmet, setHelmet] = useState<HelmetAnswer>(DEFAULTS.helmet);
   const [error, setError] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [result, setResult] = useState<RiderRulesResult | null>(null);
   const [localRules, setLocalRules] = useState<LocalRulesResult | null>(null);
+  const [decision, setDecision] = useState<RideDecision | null>(null);
 
-  /** Any edit to age, class or city clears stale guidance. */
+  /** Any edit clears stale guidance. */
   function clearResult() {
     setResult(null);
     setLocalRules(null);
+    setDecision(null);
+  }
+
+  function handleStartOver() {
+    clearResult();
+    setAge("");
+    setClassSelection(DEFAULTS.classSelection);
+    setClassCarriedOver(false);
+    setCityId(DEFAULTS.cityId);
+    setLocation(DEFAULTS.location);
+    setHelmet(DEFAULTS.helmet);
+    setError(null);
+    setLocationError(null);
   }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     // Always validate the CURRENT raw field value — never a previously valid age.
     const validation = validateAge(age);
-    if (!validation.valid) {
-      setError(validation.message);
+    const missingLocation = location === null;
+    setError(validation.valid ? null : validation.message);
+    setLocationError(missingLocation ? LOCATION_REQUIRED_MESSAGE : null);
+    if (!validation.valid || missingLocation) {
       clearResult();
       return;
     }
-    setError(null);
     // Statewide result is computed from age + class ONLY — city never affects it.
     setResult(getStatewideRiderRules({ ageYears: validation.value, classSelection }));
     setLocalRules(getLocalCityRules(cityId, classSelection));
+    setDecision(
+      evaluateRideDecision({
+        ageYears: validation.value,
+        classSelection,
+        cityId,
+        location: location!,
+        helmet,
+      }),
+    );
   }
 
   function handleAgeChange(raw: string) {
@@ -111,21 +196,27 @@ export function RiderRules({
     setError(validation.valid ? null : error ? validation.message : null);
   }
 
-  if (result) {
+  if (result && decision) {
     return (
-      <RiderResultCard
+      <RideResult
+        decision={decision}
         result={result}
         localRules={localRules}
         classSelection={classSelection}
         onEdit={clearResult}
+        onStartOver={handleStartOver}
       />
     );
   }
 
-
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="surface-card divide-y divide-border px-5 py-5 sm:px-7">
+      <fieldset className="surface-card divide-y divide-border px-5 py-5 sm:px-7">
+        <legend className="sr-only">Rider and vehicle</legend>
+        <h2 className="pb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Rider and vehicle
+        </h2>
+
         <FieldShell
           label="Rider age in years"
           hint="Whole number between 1 and 120."
@@ -178,14 +269,7 @@ export function RiderRules({
                     setClassCarriedOver(false);
                     clearResult();
                   }}
-
-                  className={cn(
-                    "min-h-12 rounded-lg border px-3 text-base font-semibold transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    selected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-foreground hover:bg-secondary",
-                  )}
+                  className={optionClass(selected)}
                 >
                   {option.label}
                 </button>
@@ -217,14 +301,86 @@ export function RiderRules({
             ))}
           </select>
         </FieldShell>
-      </div>
+      </fieldset>
 
+      <fieldset className="surface-card mt-4 divide-y divide-border px-5 py-5 sm:px-7">
+        <legend className="sr-only">Planned ride</legend>
+        <h2 className="pb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Planned ride
+        </h2>
+
+        <FieldShell label="Where does the rider plan to ride?" hint={RIDE_LOCATION_HELPER}>
+          <div
+            role="radiogroup"
+            aria-label="Planned riding location"
+            aria-invalid={locationError ? true : undefined}
+            aria-describedby={locationError ? "ride-location-error" : undefined}
+            className="grid gap-2"
+          >
+            {RIDE_LOCATION_OPTIONS.map((option) => {
+              const selected = location === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => {
+                    setLocation(option.value);
+                    setLocationError(null);
+                    clearResult();
+                  }}
+                  className={optionClass(selected)}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+          {locationError ? (
+            <p
+              id="ride-location-error"
+              role="alert"
+              className="mt-2 flex gap-2 text-sm font-medium text-alert"
+            >
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              {locationError}
+            </p>
+          ) : null}
+        </FieldShell>
+
+        <FieldShell
+          label="Will the rider wear a properly fitted and fastened bicycle helmet?"
+          hint={HELMET_QUESTION_HELPER}
+        >
+          <div role="radiogroup" aria-label="Helmet status" className="grid gap-2 sm:grid-cols-3">
+            {HELMET_OPTIONS.map((option) => {
+              const selected = helmet === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => {
+                    setHelmet(option.value);
+                    clearResult();
+                  }}
+                  className={optionClass(selected)}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </FieldShell>
+      </fieldset>
 
       <button
         type="submit"
         className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
-        Check rider rules
+        Check this ride
       </button>
 
       <div className="mt-4 rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
@@ -235,19 +391,145 @@ export function RiderRules({
   );
 }
 
+/** Integrated verdict + trace, followed by the unchanged detailed rule sections. */
+function RideResult({
+  decision,
+  result,
+  localRules,
+  classSelection,
+  onEdit,
+  onStartOver,
+}: {
+  decision: RideDecision;
+  result: RiderRulesResult;
+  localRules: LocalRulesResult | null;
+  classSelection: RiderClassSelection;
+  onEdit: () => void;
+  onStartOver: () => void;
+}) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
+
+  const Icon = VERDICT_ICON[decision.overallStatus];
+
+  return (
+    <div className="space-y-4">
+      <section
+        aria-live="polite"
+        aria-label="Ride decision"
+        className={cn("surface-card overflow-hidden border-2", VERDICT_TONE[decision.overallStatus])}
+      >
+        <div className="px-5 py-6 sm:px-7">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Ride decision
+          </p>
+          <h2
+            ref={headingRef}
+            tabIndex={-1}
+            className="mt-2 flex items-start gap-2.5 text-2xl font-bold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Icon className="mt-1 size-6 shrink-0" aria-hidden="true" />
+            {decision.overallLabel}
+          </h2>
+        </div>
+      </section>
+
+      <section aria-labelledby="trace-heading" className="surface-card overflow-hidden">
+        <div className="border-b border-border px-5 py-4 sm:px-7">
+          <h3 id="trace-heading" className="text-sm font-semibold uppercase tracking-wide">
+            How the decision was made
+          </h3>
+        </div>
+        <ul className="divide-y divide-border">
+          {decision.rows.map((row) => (
+            <DecisionTraceRow key={row.id} row={row} />
+          ))}
+        </ul>
+      </section>
+
+      {decision.unresolvedChecks.length > 0 ? (
+        <section aria-labelledby="next-checks-heading" className="surface-card px-5 py-5 sm:px-7">
+          <h3 id="next-checks-heading" className="text-sm font-semibold uppercase tracking-wide">
+            What to check next
+          </h3>
+          <ul className="mt-3 space-y-2.5">
+            {decision.unresolvedChecks.map((check) => (
+              <li key={check} className="flex gap-2.5 text-sm leading-relaxed">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-caution" aria-hidden="true" />
+                <span>{check}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <RiderResultCard
+        result={result}
+        localRules={localRules}
+        classSelection={classSelection}
+        onEdit={onEdit}
+        onStartOver={onStartOver}
+      />
+    </div>
+  );
+}
+
+function DecisionTraceRow({ row }: { row: DecisionRow }) {
+  return (
+    <li className="px-5 py-4 sm:px-7">
+      <div className="flex flex-wrap items-center gap-2">
+        <h4 className="text-base font-bold">{row.label}</h4>
+        <span
+          className={cn(
+            "rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide",
+            ROW_TONE[row.status],
+          )}
+        >
+          {ROW_MARK[row.status]}
+        </span>
+      </div>
+      <p className="mt-1 text-sm font-semibold">{row.statusText}</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{row.reason}</p>
+      {row.sources.length > 0 ? (
+        <ul className="mt-2.5 space-y-1.5">
+          {row.sources.map((source) => (
+            <li key={source.url}>
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="group inline-flex items-start gap-2 rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <ExternalLink className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                <span className="font-semibold text-primary group-hover:underline">
+                  {source.citation}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+}
+
 function RiderResultCard({
   result,
   localRules,
   classSelection,
   onEdit,
+  onStartOver,
 }: {
   result: RiderRulesResult;
   localRules: LocalRulesResult | null;
   classSelection: RiderClassSelection;
   onEdit: () => void;
+  onStartOver: () => void;
 }) {
   return (
-    <section aria-live="polite" className="space-y-4">
+    <section className="space-y-4">
       <div className="surface-card overflow-hidden">
         <div className="grid gap-3 px-5 py-6 sm:grid-cols-2 sm:px-7">
           <div className={cn("rounded-xl px-4 py-4", AGE_TONE[result.ageStatus])}>
@@ -348,9 +630,6 @@ function RiderResultCard({
         </p>
       </div>
 
-
-
-
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
         <p>
           {result.requiresClassVerification ? UNVERIFIED_CLASS_ASSUMPTION : LEGAL_EBIKE_ASSUMPTION}
@@ -359,14 +638,24 @@ function RiderResultCard({
         <p className="mt-1.5 text-xs font-medium">{LEGAL_REVIEW_DATE}</p>
       </div>
 
-      <button
-        type="button"
-        onClick={onEdit}
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Edit answers
-      </button>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Edit answers
+        </button>
+        <button
+          type="button"
+          onClick={onStartOver}
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-primary bg-card text-base font-semibold text-primary transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <RotateCcw className="size-4" aria-hidden="true" />
+          Start over
+        </button>
+      </div>
     </section>
   );
 }
@@ -440,4 +729,3 @@ function LocalRulesCard({ localRules }: { localRules: LocalRulesResult }) {
     </section>
   );
 }
-
