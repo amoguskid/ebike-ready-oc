@@ -175,7 +175,7 @@ California e-bike class.
 
 Run everything with `bunx vitest run`.
 
-### `src/lib/classifyVehicle.test.ts` (13 cases)
+### `src/lib/classifyVehicle.test.ts` (15 cases)
 All start from a base vehicle: pedals yes, 500 W, no throttle, assist 20 mph,
 speedometer yes, not advertised as modifiable.
 
