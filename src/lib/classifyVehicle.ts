@@ -113,12 +113,8 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
     return build(
       "not-an-ebike",
       "Does Not Meet California E-Bike Definition",
-      "California requires an electric bicycle to have fully operable pedals. Because this vehicle has none, it is not an electric bicycle.",
-      [
-        ...warnings,
-        "Riding this on bike paths, bike lanes, or sidewalks is generally not allowed.",
-        UNCLASSIFIED_VEHICLE_NOTE,
-      ],
+      "This vehicle does not meet California's electric-bicycle definition because it does not have fully operable pedals. Its correct legal category depends on additional specifications. Verify the category and applicable riding requirements with the California DMV or CHP before using it on public roads or paths.",
+      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
     );
   }
