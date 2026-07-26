@@ -145,6 +145,19 @@ export function ResultCard({
         </div>
       </div>
 
+      {handoffClass ? (
+        <Link
+          to="/rules"
+          search={{ class: handoffClass }}
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          Check rules for this rider
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
+      ) : null}
+
+
+
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
         <p>{DISCLAIMER}</p>
         <p className="mt-1.5 text-xs font-medium">{LEGAL_REVIEW_DATE}</p>
