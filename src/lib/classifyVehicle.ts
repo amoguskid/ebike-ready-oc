@@ -209,6 +209,7 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
       [
         ...warnings,
         "Disabling the throttle or lowering the cut-off speed may change the classification — verify with the manufacturer.",
+        UNCLASSIFIED_VEHICLE_NOTE,
       ],
       input,
     );
