@@ -281,7 +281,7 @@ function RiderResultCard({
 
           {result.requiresClassVerification ? (
             <Link
-              to="/"
+              to="/classify"
               className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-primary bg-card text-base font-semibold text-primary transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Verify the class in the Class Checker
