@@ -25,6 +25,8 @@ export const Route = createFileRoute("/rules")({
 });
 
 function RulesPage() {
+  const { class: rawClass } = Route.useSearch();
+  const carriedOverClass = parseRulesClassParam(rawClass);
   return (
     <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-2 sm:px-6">
       <header className="mb-6">
