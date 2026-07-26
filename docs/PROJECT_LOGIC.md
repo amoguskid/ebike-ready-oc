@@ -70,7 +70,7 @@ client-side from constants stored in the repository.
   `validateAge(raw: string): AgeValidation`, `isValidAge(age: number)`, and
   `getStatewideRiderRules(input: RiderInput): RiderRulesResult | null`
   (returns `null` for any invalid age, so invalid input produces no result).
-- `src/lib/getStatewideRiderRules.test.ts` — 14 vitest cases.
+- `src/lib/getStatewideRiderRules.test.ts` — 21 vitest cases.
 - UI: `src/components/rules/RiderRules.tsx` (`RiderRules`, `RiderResultCard`).
   It reuses `FieldShell` from the classifier and the shared design tokens.
 
