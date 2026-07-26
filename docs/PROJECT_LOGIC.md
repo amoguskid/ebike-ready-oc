@@ -8,15 +8,16 @@ file names, functions, constants and behaviors below were read from the source.
 ## 1. Purpose and modules
 
 E-Bike Ready OC is a mobile-first React + TypeScript educational prototype about
-electric-bicycle law and safety in California. It has three working modules:
+electric-bicycle law and safety in California. It has four working modules:
 
 | Module | Route | Purpose |
 | --- | --- | --- |
 | **Class Checker** (default) | `/` (`src/routes/index.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
+| **Decision Scenarios** | `/scenarios` (`src/routes/scenarios.tsx`) | A five-question learning activity that restates rules and estimates already verified in the other modules. No new legal rules. |
 | **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for four verified Orange County cities (Anaheim, Cypress, Garden Grove, Stanton). A city selection never changes the statewide result. |
 
-Navigation between the three lives in the root layout, `src/routes/__root.tsx`.
+Navigation between the four lives in the root layout, `src/routes/__root.tsx`.
 
 No OCR, GPS, accounts, database or external API is used. Everything runs
 client-side from constants stored in the repository.
@@ -367,6 +368,40 @@ educational simulator starting points.** They are not a legal speed limit for
 any rider, road, path or city, and the action never implies that viewing a
 stopping distance makes a ride legal — it is shown even when the statewide age
 result is "Not permitted".
+
+---
+
+## 7c. Decision Scenarios module
+
+Five scenarios are shown one at a time with a "Scenario N of 5" progress label
+and 2-3 choices. The correct answer is never revealed before the user chooses.
+After a choice, the result label, explanation and that scenario's own official
+sources appear, plus a "Next scenario" button; after the fifth, the score and a
+"Try again" button that resets index and answers.
+
+| # | Topic | Correct answer | Result label | Sources | In-app link |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Class 3 age (15-year-old) | "No, the operator must be at least 16" | Not permitted | CVC §21213 | `/rules?class=3` |
+| 2 | Anaheim sidewalk, Class 3 | "Use an appropriate bike lane or roadway instead" | Not permitted on the sidewalk | Anaheim PD E-Bike Safety; AMC §14.72.030 | none |
+| 3 | Cypress park path | "No" | Follow park restrictions | Cypress Park Rules, MC §17-72 | none |
+| 4 | 17-year-old without a helmet | "No, riders under 18 must wear a helmet" | Helmet required | CVC §21212 | `/rules?class=1` |
+| 5 | Approaching an intersection at 28 mph | "Begin slowing early and leave additional stopping space" | Safer choice | none | `/stopping?speed=28&from=class-3` |
+
+Scenario 5 is a **safety recommendation**, not a legal requirement: its
+explanation states the ~99 ft figure (28 mph, 1.5 s reaction, dry pavement,
+from the unchanged stopping-distance formula) is an educational estimate.
+
+**Files:** data in `src/data/scenarios.ts`, types in `src/types/scenarios.ts`,
+pure scoring in `src/lib/scenarioScoring.ts` (`evaluateAnswer`, `scoreAnswers`,
+`nextIndex`, `isComplete`, `progressLabel`, `initialState`), UI in
+`src/components/scenarios/DecisionScenarios.tsx`. The component holds only the
+current index, the recorded answers and the current selection.
+
+**Tests:** `src/lib/scenarioScoring.test.ts` (14 cases) covers all five correct
+answers, no credit for incorrect or unknown choices, a mixed run, per-scenario
+single credit, progress advance and clamping, completion, score totals, the
+"Try again" reset, source-to-scenario isolation (§21212 only on scenario 4,
+§21213 only on scenario 1) and the exact internal route/search params.
 
 ---
 
