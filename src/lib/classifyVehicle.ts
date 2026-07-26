@@ -71,13 +71,20 @@ function build(
   warnings: string[],
   input: VehicleInput,
 ): ClassificationResult {
+  const allWarnings = [...warnings, ...(CLASS_RIDER_NOTES[code] ?? [])];
+  const mentionsUnder18Helmet = allWarnings.some(
+    (note) => note.includes("under 18") && note.toLowerCase().includes("helmet"),
+  );
+
   return {
     code,
     title,
     explanation,
-    warnings: [...warnings, ...(CLASS_RIDER_NOTES[code] ?? [])],
+    warnings: allWarnings,
     triggeringSpecs: specList(input),
-    sources: [...CA_SOURCES],
+    sources: mentionsUnder18Helmet
+      ? [...CA_SOURCES, HELMET_UNDER_18_SOURCE]
+      : [...CA_SOURCES],
   };
 }
 
