@@ -14,7 +14,12 @@
  * plainly written legal condition.
  */
 
-import { CA_RULES, CA_SOURCES, CLASS_RIDER_NOTES } from "@/data/californiaRules";
+import {
+  CA_RULES,
+  CA_SOURCES,
+  CLASS_RIDER_NOTES,
+  UNCLASSIFIED_VEHICLE_NOTE,
+} from "@/data/californiaRules";
 import type {
   ClassificationCode,
   ClassificationResult,
@@ -52,7 +57,10 @@ function specList(input: VehicleInput): TriggeringSpec[] {
       value: numLabel(input.maxPedalAssistedSpeedMph, "mph"),
     },
     { label: "Speedometer equipped", value: triLabel(input.hasSpeedometer) },
-    { label: "Advertised as modifiable", value: triLabel(input.advertisedAsModifiable) },
+    {
+      label: "Manufacturer advertises unlock beyond 20 mph / 750 W",
+      value: triLabel(input.advertisedAsModifiable),
+    },
   ];
 }
 
