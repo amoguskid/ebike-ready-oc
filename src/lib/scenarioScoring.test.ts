@@ -46,13 +46,16 @@ describe("Decision Scenarios data", () => {
     expect(byId["teen-helmet"].sources[0].url).toContain("sectionNum=21212");
     expect(byId["stopping-28"].sources).toEqual([]);
 
-    // §21212 belongs only to the helmet scenario, §21213 only to the age scenario.
-    const with21212 = SCENARIOS.filter((s) =>
-      s.sources.some((src) => src.url.includes("21212")),
-    ).map((s) => s.id);
-    const with21213 = SCENARIOS.filter((s) =>
-      s.sources.some((src) => src.url.includes("21213")),
-    ).map((s) => s.id);
+    // Among hand-authored scenarios, §21212 belongs only to the helmet scenario
+    // and §21213 only to the age scenario. Engine-generated scenarios carry
+    // whatever sources the shared rule trace supplies.
+    const authored = SCENARIOS.filter((s) => !s.derivedFrom);
+    const with21212 = authored
+      .filter((s) => s.sources.some((src) => src.url.includes("21212")))
+      .map((s) => s.id);
+    const with21213 = authored
+      .filter((s) => s.sources.some((src) => src.url.includes("21213")))
+      .map((s) => s.id);
     expect(with21212).toEqual(["teen-helmet"]);
     expect(with21213).toEqual(["class-3-age"]);
   });
