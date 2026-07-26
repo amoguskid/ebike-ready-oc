@@ -103,7 +103,14 @@ export function StoppingSimulator({
               </button>
             ))}
           </div>
+          {handoff ? (
+            <p className="mt-3 flex gap-2 rounded-lg bg-info-soft px-3 py-2 text-sm leading-relaxed">
+              <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              {handoff.note}
+            </p>
+          ) : null}
         </div>
+
 
         <div className="mt-7 border-t border-border pt-6">
           <div className="flex items-end justify-between gap-3">
