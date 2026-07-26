@@ -2,6 +2,7 @@
  * Verification cases for the statewide rider-rules logic.
  */
 import { describe, expect, it } from "vitest";
+import { AGE_VALIDATION_MESSAGE } from "@/data/riderRules";
 import { getStatewideRiderRules, isValidAge, validateAge } from "@/lib/getStatewideRiderRules";
 import type { RiderClassSelection } from "@/types/riderRules";
 
