@@ -9,7 +9,14 @@ import { getStatewideRiderRules } from "@/lib/getStatewideRiderRules";
 import type { CityId } from "@/types/cityRules";
 import type { RiderClassSelection } from "@/types/riderRules";
 
-const CITIES: CityId[] = ["statewide-only", "anaheim", "cypress", "garden-grove", "stanton"];
+const CITIES: CityId[] = [
+  "statewide-only",
+  "anaheim",
+  "cypress",
+  "garden-grove",
+  "los-alamitos",
+  "stanton",
+];
 const CLASSES: RiderClassSelection[] = ["class-1", "class-2", "class-3", "needs-verification"];
 
 describe("statewide-only default", () => {
@@ -165,11 +172,12 @@ describe("source isolation and metadata", () => {
     }
   });
 
-  it("covers exactly the four verified cities", () => {
+  it("covers exactly the five verified cities", () => {
     expect(Object.keys(CITY_RULES).sort()).toEqual([
       "anaheim",
       "cypress",
       "garden-grove",
+      "los-alamitos",
       "stanton",
     ]);
   });

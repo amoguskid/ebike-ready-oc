@@ -129,6 +129,61 @@ export const CITY_LOCATION_RULES: Record<Exclude<CityId, "statewide-only">, City
     },
   },
 
+  "los-alamitos": {
+    street: {
+      shared: {
+        status: "verify",
+        reason:
+          "Los Alamitos Municipal Code §10.45.120(A) permits e-conveyances on public roadways or highways only as otherwise permitted and subject to the listed restrictions, so the rules that apply to this specific roadway, along with posted signs and safe operation, must be confirmed before riding.",
+      },
+    },
+    "bike-lane": {
+      shared: {
+        status: "verify",
+        reason:
+          "Los Alamitos Municipal Code §10.45.120(A) permits e-conveyances on bicycle paths or trails only as otherwise permitted and subject to the listed restrictions, so whether this specific bike lane or path is open to the e-conveyance, along with posted signs and safe operation, must be confirmed before riding.",
+      },
+    },
+    sidewalk: {
+      byClass: {
+        "class-1": {
+          status: "verify",
+          reason:
+            "In Los Alamitos, ordinary sidewalk riding is generally permitted under §10.45.120(A), but §10.45.120(C) prohibits it in a business district and on sidewalks adjacent to a public-school building while school is in session, a church, a recreation center, a playground, or a senior-citizen residential development. This form does not determine whether the chosen sidewalk is in one of those contexts, and §10.45.120(D) still requires yielding to pedestrians and safe operation, so posted signs and the surroundings must be checked on site.",
+        },
+        "class-2": {
+          status: "verify",
+          reason:
+            "In Los Alamitos, ordinary sidewalk riding is generally permitted under §10.45.120(A), but §10.45.120(C) prohibits it in a business district and on sidewalks adjacent to a public-school building while school is in session, a church, a recreation center, a playground, or a senior-citizen residential development. This form does not determine whether the chosen sidewalk is in one of those contexts, and §10.45.120(D) still requires yielding to pedestrians and safe operation, so posted signs and the surroundings must be checked on site.",
+        },
+        "class-3": {
+          status: "prohibited",
+          reason:
+            "Los Alamitos Municipal Code §10.45.120(B) prohibits Class 3 electric bicycles on every sidewalk in the city.",
+        },
+        "needs-verification": {
+          status: "verify",
+          reason:
+            "The vehicle class is not verified. In Los Alamitos, §10.45.120(B) prohibits Class 3 electric bicycles on every sidewalk, while Class 1 and Class 2 sidewalk riding is generally permitted under §10.45.120(A) except in the contexts listed in §10.45.120(C), subject to the pedestrian-yield and safe-operation duty in §10.45.120(D). The class and the specific sidewalk context must both be confirmed.",
+        },
+      },
+    },
+    "park-trail": {
+      shared: {
+        status: "verify",
+        reason:
+          "Los Alamitos Municipal Code §10.45.120(E) prohibits operating an e-conveyance on a playground, park, or public-school property that is not designated as a bicycle path or route, unless specifically posted as authorized. Whether this specific park or trail is a designated bicycle path or route, or is posted as authorized, must be confirmed before riding.",
+      },
+    },
+    "school-campus": {
+      shared: {
+        status: "verify",
+        reason:
+          "Los Alamitos Municipal Code §10.45.120(E) prohibits operating an e-conveyance on public-school property that is not designated as a bicycle path or route, unless specifically posted as authorized, and §10.45.120(C) prohibits sidewalk riding adjacent to a public-school building while school is in session. Whether the route on campus is designated or posted as authorized, and whether school is in session, must be confirmed before riding.",
+      },
+    },
+  },
+
   stanton: {
     street: {
       shared: {

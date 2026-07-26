@@ -18,8 +18,8 @@ function answerAll(choose: (index: number) => string): ScenarioAnswer[] {
 }
 
 describe("Decision Scenarios data", () => {
-  it("has exactly five scenarios", () => {
-    expect(SCENARIO_COUNT).toBe(5);
+  it("has exactly six scenarios", () => {
+    expect(SCENARIO_COUNT).toBe(6);
   });
 
   it("gives every scenario a valid correct choice and 2-3 options", () => {
@@ -46,13 +46,16 @@ describe("Decision Scenarios data", () => {
     expect(byId["teen-helmet"].sources[0].url).toContain("sectionNum=21212");
     expect(byId["stopping-28"].sources).toEqual([]);
 
-    // §21212 belongs only to the helmet scenario, §21213 only to the age scenario.
-    const with21212 = SCENARIOS.filter((s) =>
-      s.sources.some((src) => src.url.includes("21212")),
-    ).map((s) => s.id);
-    const with21213 = SCENARIOS.filter((s) =>
-      s.sources.some((src) => src.url.includes("21213")),
-    ).map((s) => s.id);
+    // Among hand-authored scenarios, §21212 belongs only to the helmet scenario
+    // and §21213 only to the age scenario. Engine-generated scenarios carry
+    // whatever sources the shared rule trace supplies.
+    const authored = SCENARIOS.filter((s) => !s.derivedFrom);
+    const with21212 = authored
+      .filter((s) => s.sources.some((src) => src.url.includes("21212")))
+      .map((s) => s.id);
+    const with21213 = authored
+      .filter((s) => s.sources.some((src) => src.url.includes("21213")))
+      .map((s) => s.id);
     expect(with21212).toEqual(["teen-helmet"]);
     expect(with21213).toEqual(["class-3-age"]);
   });
@@ -86,6 +89,7 @@ describe("Decision Scenarios data", () => {
       "Follow park restrictions",
       "Helmet required",
       "Safer choice",
+      "Do not ride this setup",
     ]);
     const stopping = SCENARIOS[4];
     expect(stopping.explanation).toContain("not a legal rule");
@@ -93,10 +97,10 @@ describe("Decision Scenarios data", () => {
 });
 
 describe("scenario answer evaluation", () => {
-  it("credits all five correct answers", () => {
+  it("credits all six correct answers", () => {
     const answers = answerAll((i) => SCENARIOS[i].correctChoiceId);
     expect(answers.every((a) => a.correct)).toBe(true);
-    expect(scoreAnswers(answers)).toBe(5);
+    expect(scoreAnswers(answers)).toBe(6);
   });
 
   it("gives no credit for incorrect answers", () => {
@@ -128,22 +132,22 @@ describe("scenario answer evaluation", () => {
 });
 
 describe("scenario progress", () => {
-  it("labels progress from 1 of 5", () => {
-    expect(progressLabel(0)).toBe("Scenario 1 of 5");
-    expect(progressLabel(4)).toBe("Scenario 5 of 5");
+  it("labels progress from 1 of 6", () => {
+    expect(progressLabel(0)).toBe("Scenario 1 of 6");
+    expect(progressLabel(5)).toBe("Scenario 6 of 6");
   });
 
   it("advances one scenario at a time and clamps at the end", () => {
     expect(nextIndex(0)).toBe(1);
     expect(nextIndex(3)).toBe(4);
-    expect(nextIndex(4)).toBe(5);
-    expect(nextIndex(5)).toBe(5);
+    expect(nextIndex(5)).toBe(6);
+    expect(nextIndex(6)).toBe(6);
   });
 
-  it("is complete only after the fifth scenario", () => {
-    expect(isComplete(4)).toBe(false);
-    expect(isComplete(5)).toBe(true);
-    expect(getScenario(5)).toBeNull();
+  it("is complete only after the sixth scenario", () => {
+    expect(isComplete(5)).toBe(false);
+    expect(isComplete(6)).toBe(true);
+    expect(getScenario(6)).toBeNull();
     expect(getScenario(0)?.id).toBe("class-3-age");
   });
 
@@ -151,6 +155,6 @@ describe("scenario progress", () => {
     const fresh = initialState();
     expect(fresh).toEqual({ index: 0, answers: [] });
     expect(scoreAnswers(fresh.answers)).toBe(0);
-    expect(progressLabel(fresh.index)).toBe("Scenario 1 of 5");
+    expect(progressLabel(fresh.index)).toBe("Scenario 1 of 6");
   });
 });

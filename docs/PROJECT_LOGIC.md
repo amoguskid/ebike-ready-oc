@@ -17,7 +17,7 @@ working modules:
 | **Class Checker** | `/classify` (`src/routes/classify.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
 | **Decision Scenarios** | `/scenarios` (`src/routes/scenarios.tsx`) | A five-question learning activity that restates rules and estimates already verified in the other modules. No new legal rules. |
-| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for four verified Orange County cities (Anaheim, Cypress, Garden Grove, Stanton). A city selection never changes the statewide result. |
+| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for five verified Orange County cities (Anaheim, Cypress, Garden Grove, Los Alamitos, Stanton). A city selection never changes the statewide result. |
 
 ### Branding shell and navigation (Design Polish Build 1)
 
@@ -157,7 +157,7 @@ Changing age, class or city clears any prior result.
 a city selection can never change the statewide age or helmet outcome. The
 statewide cards render first; the local card is a separate card below them.
 
-**Coverage limits.** Four Orange County cities only — this is *not*
+**Coverage limits.** Five Orange County cities only — this is *not*
 comprehensive Orange County coverage and is not legal advice. Posted signs and
 facility-specific rules may be more restrictive.
 
@@ -166,6 +166,7 @@ facility-specific rules may be more restrictive.
 | Anaheim | Class-aware sidewalk rule (Class 1/2 allowed except business districts or where signed, must yield, no throttle-only; Class 3 not allowed); 5 mph sidewalks; 20 mph public streets/paths/lanes (AMC §14.72.030); no public parks; no unpaved hiking/equestrian/walking trails; 10 mph paved trails; no wheelies/stunts; no handheld phone use. | none |
 | Cypress | Park/recreation-facility rule only: motorized vehicles only on surfaces maintained and open for public vehicular travel; bicycles, scooters, skateboards, roller skates and other motorized vehicles not used outside designated areas except at sanctioned events. | No citywide sidewalk rule in this version. |
 | Garden Grove | Park rule only: bicycles and e-bikes may not be ridden on park property except on roads or paths designated for their use. | No citywide sidewalk or trail speed rule in this version. |
+| Los Alamitos | Los Alamitos MC §10.45.120 (Ordinance No. 2025-01): (A) e-conveyances generally permitted on sidewalks, bicycle paths/trails, public roadways or highways as otherwise permitted, subject to the restrictions below; (B) Class 3 e-bikes prohibited on every sidewalk; (C) no sidewalk riding in a business district or on sidewalks adjacent to a public-school building while school is in session, a church, recreation center, playground or senior-citizen residential development; (D) yield to pedestrians, no willful or wanton disregard for safety; (E) no operation on a playground, park or public-school property not designated as a bicycle path/route unless specifically posted as authorized. | Whether a specific sidewalk sits in a prohibited context under (C) must be confirmed on site; posted signs also control. |
 | Stanton | 5 mph sidewalks; 20 mph public rights-of-way, bike paths, bike lanes and places generally open to the public; no city parks; no unpaved hiking/equestrian/walking trails; 10 mph paved trails; no wheelies/stunts; no tampering to increase speed; no handheld phone use. | none |
 
 **Official local sources (checked July 26, 2026).**
@@ -173,6 +174,8 @@ facility-specific rules may be more restrictive.
 - Anaheim Municipal Code §14.72.030, "Unsafe Operation" — https://codelibrary.amlegal.com/codes/anaheim/latest/anaheim_ca/0-0-0-85704
 - City of Cypress, "Park Rules," Cypress Municipal Code §17-72 — https://www.cypressca.org/activities/facility-park-locations/park-rules
 - City of Garden Grove, "Garden Grove Park Facilities Rules and Regulations" — https://ggcity.org/sites/default/files/garden-grove-park-facilities-rules_2022.pdf
+- City of Los Alamitos, "E-bike Ordinance" — https://cityoflosalamitos.org/634/E-bike-Ordinance
+- Los Alamitos Municipal Code §10.45.120, Ordinance No. 2025-01 — https://ecode360.com/LO4963/laws/LF2302282.pdf
 - City of Stanton, "New E-Bike Regulations" — https://www.stantonca.gov/news_detail_T9_R303.php
 - Stanton Municipal Code Chapter 10.38, including §10.38.030 — https://ecode360.com/48454334
 
@@ -425,10 +428,10 @@ result is "Not permitted".
 
 ## 7c. Decision Scenarios module
 
-Five scenarios are shown one at a time with a "Scenario N of 5" progress label
+Six scenarios are shown one at a time with a "Scenario N of 6" progress label
 and 2-3 choices. The correct answer is never revealed before the user chooses.
 After a choice, the result label, explanation and that scenario's own official
-sources appear, plus a "Next scenario" button; after the fifth, the score and a
+sources appear, plus a "Next scenario" button; after the sixth, the score and a
 "Try again" button that resets index and answers.
 
 | # | Topic | Correct answer | Result label | Sources | In-app link |
@@ -438,6 +441,7 @@ sources appear, plus a "Next scenario" button; after the fifth, the score and a
 | 3 | Cypress park path | "No" | Follow park restrictions | Cypress Park Rules, MC §17-72 | none |
 | 4 | 17-year-old without a helmet | "No, riders under 18 must wear a helmet" | Helmet required | CVC §21212 | `/rules?class=1` |
 | 5 | Approaching an intersection at 28 mph | "Begin slowing early and leave additional stopping space" | Safer choice | none | `/stopping?speed=28&from=class-3` |
+| 6 | Los Alamitos sidewalk, age 17, Class 3, helmet Yes | "Do not ride this setup on the sidewalk" | Do not ride this setup *(generated)* | generated from the shared rule trace | `/rules?class=3` |
 
 Scenario 5 is a **safety recommendation**, not a legal requirement: its
 explanation states the ~99 ft figure (28 mph, 1.5 s reaction, dry pavement,
@@ -497,8 +501,9 @@ unconditional "legal" verdict, and every returned source is an existing object
 from `RIDER_RULE_SOURCES` or a city's verified `sources` array.
 
 **Conservative unknown behavior.** Silence in the data is never read as
-permission. School campuses, Cypress/Garden Grove streets, sidewalks and bike
-lanes, and every uncovered pairing return "Verify before riding" with an
+permission. School campuses (outside Los Alamitos), Cypress/Garden Grove
+streets, sidewalks and bike lanes, every Los Alamitos location except a Class 3
+sidewalk, and every uncovered pairing return "Verify before riding" with an
 explicit item in "What to check next".
 
 **Presentation.** The verdict card is first (green check / red stop / amber
@@ -508,8 +513,45 @@ then the unchanged statewide and local rule sections and the unchanged stopping
 handoff. Edit answers preserves inputs; Start over resets to the defaults with
 no location and Helmet = Not sure.
 
-**Tests.** `src/lib/evaluateRideDecision.test.ts` (decision table, 22 cases) and
-`src/components/rules/RiderRules.test.tsx` (13 UI cases).
+**Tests.** `src/lib/evaluateRideDecision.test.ts` (decision table, 22 cases),
+`src/components/rules/RiderRules.test.tsx` (18 UI cases) and
+`src/lib/losAlamitos.test.ts` (Los Alamitos decision table, shared-engine
+scenario derivation and unchanged-city regression cases).
+
+---
+
+## 7e. One source of truth — Ride Check and the Los Alamitos scenario
+
+Los Alamitos rule prose exists in exactly two typed places:
+`src/data/cityRules.ts` (`CITY_RULES["los-alamitos"]`, including the two
+official source links) and `src/data/rideLocations.ts`
+(`CITY_LOCATION_RULES["los-alamitos"]`, the per-location status and reason).
+
+Both `/rules` and the sixth scenario read those same records through the same
+pure evaluator, `evaluateRideDecision()`:
+
+```text
+cityRules.ts + rideLocations.ts
+            |
+    evaluateRideDecision(RideDecisionInput)
+       /                          \
+  RiderRules.tsx (/rules)   buildLosAlamitosScenario()
+                                  |
+                            SCENARIOS[5] (/scenarios)
+```
+
+`src/data/losAlamitosScenario.ts` contains no rule text and no status logic. It
+declares the scenario input (age 17, Class 3, Los Alamitos, Sidewalk, helmet
+Yes), calls the evaluator, and copies the returned `overallLabel`, blocked-row
+reasons and de-duplicated `sources` straight onto the scenario. The builder
+throws if the evaluator returns no decision, so a data regression can never
+leave a stale hand-written answer behind. Helper text under the result says the
+answer was generated by the shared Ride Check rules engine, and
+`src/lib/losAlamitos.test.ts` asserts the scenario equals a fresh evaluator call
+field by field.
+
+Editing an ordinance therefore requires exactly one edit: change the typed city
+record, and both the Ride Check verdict and the scenario move together.
 
 ---
 

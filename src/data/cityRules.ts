@@ -30,6 +30,7 @@ export const CITY_OPTIONS: { value: CityId; label: string }[] = [
   { value: "anaheim", label: "Anaheim" },
   { value: "cypress", label: "Cypress" },
   { value: "garden-grove", label: "Garden Grove" },
+  { value: "los-alamitos", label: "Los Alamitos" },
   { value: "stanton", label: "Stanton" },
 ];
 
@@ -104,6 +105,40 @@ export const CITY_RULES: Record<Exclude<CityId, "statewide-only">, CityRules> = 
         citation: 'City of Garden Grove, "Garden Grove Park Facilities Rules and Regulations"',
         label: "Official park facilities rules covering bicycle and e-bike riding on park property.",
         url: "https://ggcity.org/sites/default/files/garden-grove-park-facilities-rules_2022.pdf",
+      },
+    ],
+  },
+
+  "los-alamitos": {
+    id: "los-alamitos",
+    name: "Los Alamitos",
+    sidewalkRuleByClass: {
+      "class-1":
+        "Sidewalk riding is generally permitted, but it is prohibited in a business district and on sidewalks adjacent to a public-school building while school is in session, a church, a recreation center, a playground, or a senior-citizen residential development (§10.45.120(C)).",
+      "class-2":
+        "Sidewalk riding is generally permitted, but it is prohibited in a business district and on sidewalks adjacent to a public-school building while school is in session, a church, a recreation center, a playground, or a senior-citizen residential development (§10.45.120(C)).",
+      "class-3":
+        "Class 3 electric bicycles are prohibited on every sidewalk in Los Alamitos (§10.45.120(B)).",
+      "needs-verification":
+        "The sidewalk rule depends on the class. Class 3 is prohibited on every sidewalk (§10.45.120(B)). Class 1 and Class 2 sidewalk riding is generally permitted but prohibited in a business district and on sidewalks adjacent to a public-school building while school is in session, a church, a recreation center, a playground, or a senior-citizen residential development (§10.45.120(C)).",
+    },
+    bullets: [
+      "Subject to the restrictions below, e-conveyances are generally permitted on sidewalks, bicycle paths or trails, public roadways, or highways as otherwise permitted (§10.45.120(A)).",
+      "Riders on a sidewalk must yield the right-of-way to pedestrians and may not ride with willful or wanton disregard for the safety of persons or property (§10.45.120(D)).",
+      "E-conveyances may not be operated on a playground, park, or public-school property that is not designated as a bicycle path or route, unless specifically posted as authorized (§10.45.120(E)).",
+    ],
+    coverageNote:
+      "Whether a specific sidewalk is in a business district or adjacent to a school in session, church, recreation center, playground, or senior-citizen residential development must be confirmed on site; posted signs also control.",
+    sources: [
+      {
+        citation: 'City of Los Alamitos, "E-bike Ordinance"',
+        label: "Official city page describing the local e-bike and e-conveyance ordinance.",
+        url: "https://cityoflosalamitos.org/634/E-bike-Ordinance",
+      },
+      {
+        citation: "Los Alamitos Municipal Code §10.45.120, Ordinance No. 2025-01",
+        label: "Adopted ordinance text setting the local e-conveyance operating restrictions.",
+        url: "https://ecode360.com/LO4963/laws/LF2302282.pdf",
       },
     ],
   },

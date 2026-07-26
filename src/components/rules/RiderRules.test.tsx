@@ -213,3 +213,68 @@ describe("Edit answers and Start over", () => {
     );
   });
 });
+
+describe("Los Alamitos in the Ride Check UI", () => {
+  it("offers Los Alamitos in the city selector", async () => {
+    await renderRules();
+    const select = screen.getByLabelText(/City \(optional\)/i) as HTMLSelectElement;
+    expect(
+      Array.from(select.options).some((option) => option.value === "los-alamitos"),
+    ).toBe(true);
+  });
+
+  it("red: Class 3 on a Los Alamitos sidewalk cites §10.45.120(B)", async () => {
+    await renderRules();
+    setAge("17");
+    setCity("los-alamitos");
+    pick("Vehicle classification", "Class 3");
+    pick("Planned riding location", "Sidewalk");
+    pick("Helmet status", "Yes");
+    submit();
+    expect(screen.getByRole("heading", { level: 2, name: /Do not ride this setup/i })).toBeTruthy();
+    expect(screen.getAllByText(/10\.45\.120\(B\)/).length).toBeGreaterThan(0);
+    const links = screen.getAllByRole("link") as HTMLAnchorElement[];
+    const ordinance = links.find((a) => a.href.includes("ecode360.com/LO4963"))!;
+    expect(ordinance.getAttribute("target")).toBe("_blank");
+    expect(ordinance.getAttribute("rel")).toContain("noopener");
+    expect(links.some((a) => a.href.includes("cityoflosalamitos.org/634"))).toBe(true);
+  });
+
+  it("amber: Class 1 on a Los Alamitos sidewalk is never green", async () => {
+    await renderRules();
+    setAge("30");
+    setCity("los-alamitos");
+    pick("Vehicle classification", "Class 1");
+    pick("Planned riding location", "Sidewalk");
+    pick("Helmet status", "Yes");
+    submit();
+    expect(screen.getByRole("heading", { level: 2, name: /Verify before riding/i })).toBeTruthy();
+    expect(screen.getAllByText(/generally permitted/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("What to check next")).toBeTruthy();
+  });
+
+  it("amber: a Los Alamitos park or trail explains the designated-route condition", async () => {
+    await renderRules();
+    setAge("30");
+    setCity("los-alamitos");
+    pick("Vehicle classification", "Class 1");
+    pick("Planned riding location", "Park or recreational trail");
+    pick("Helmet status", "Yes");
+    submit();
+    expect(screen.getByRole("heading", { level: 2, name: /Verify before riding/i })).toBeTruthy();
+    expect(screen.getAllByText(/designated as a bicycle path or route/i).length).toBeGreaterThan(0);
+  });
+
+  it("leaves existing city results unchanged", async () => {
+    await renderRules();
+    setAge("30");
+    setCity("anaheim");
+    pick("Vehicle classification", "Class 1");
+    pick("Planned riding location", "Street or road");
+    pick("Helmet status", "Yes");
+    submit();
+    expect(
+      screen.getByRole("heading", { level: 2, name: /Likely permitted under the verified rules/i }),
+    ).toBeTruthy();
+  });
+});
