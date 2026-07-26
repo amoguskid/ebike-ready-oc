@@ -53,8 +53,16 @@ const HELMET_TONE = {
 export function RiderRules() {
   const [age, setAge] = useState("");
   const [classSelection, setClassSelection] = useState<RiderClassSelection>("class-1");
+  const [cityId, setCityId] = useState<CityId>("statewide-only");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RiderRulesResult | null>(null);
+  const [localRules, setLocalRules] = useState<LocalRulesResult | null>(null);
+
+  /** Any edit to age, class or city clears stale guidance. */
+  function clearResult() {
+    setResult(null);
+    setLocalRules(null);
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -62,24 +70,26 @@ export function RiderRules() {
     const validation = validateAge(age);
     if (!validation.valid) {
       setError(validation.message);
-      setResult(null);
+      clearResult();
       return;
     }
     setError(null);
+    // Statewide result is computed from age + class ONLY — city never affects it.
     setResult(getStatewideRiderRules({ ageYears: validation.value, classSelection }));
+    setLocalRules(getLocalCityRules(cityId, classSelection));
   }
 
   function handleAgeChange(raw: string) {
     setAge(raw);
-    // Any edit invalidates the previous result so stale guidance is never shown.
-    setResult(null);
+    clearResult();
     const validation = validateAge(raw);
     setError(validation.valid ? null : error ? validation.message : null);
   }
 
   if (result) {
-    return <RiderResultCard result={result} onEdit={() => setResult(null)} />;
+    return <RiderResultCard result={result} localRules={localRules} onEdit={clearResult} />;
   }
+
 
   return (
     <form onSubmit={handleSubmit} noValidate>
