@@ -47,9 +47,17 @@ const HELMET_TONE = {
   "depends-on-class": "bg-caution-soft text-foreground",
 } as const;
 
-export function RiderRules() {
+export function RiderRules({
+  carriedOverClass = null,
+}: {
+  /** Class handed off from the Class Checker via `?class=`; null when absent/invalid. */
+  carriedOverClass?: RiderClassSelection | null;
+} = {}) {
   const [age, setAge] = useState("");
-  const [classSelection, setClassSelection] = useState<RiderClassSelection>("class-1");
+  const [classSelection, setClassSelection] = useState<RiderClassSelection>(
+    carriedOverClass ?? "class-1",
+  );
+  const [classCarriedOver, setClassCarriedOver] = useState(carriedOverClass !== null);
   const [cityId, setCityId] = useState<CityId>("statewide-only");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RiderRulesResult | null>(null);
