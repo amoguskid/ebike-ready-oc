@@ -41,8 +41,8 @@ export function canHandOffToRiderRules(code: ClassificationCode): boolean {
  * its existing default behavior.
  */
 export function parseRulesClassParam(raw: unknown): RiderClassSelection | null {
-  if (typeof raw !== "string") return null;
-  switch (raw.trim().toLowerCase()) {
+  if (typeof raw !== "string" && typeof raw !== "number") return null;
+  switch (String(raw).trim().toLowerCase()) {
     case "1":
     case "class-1":
       return "class-1";
