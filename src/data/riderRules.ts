@@ -28,9 +28,26 @@ export const AGE_VALIDATION_MESSAGES = {
   tooHigh: AGE_VALIDATION_MESSAGE,
 } as const;
 
-/** What this module explicitly does not check. */
-export const NOT_CHECKED_NOTE =
-  "This does not check local rules. Cities, counties, parks and school districts may restrict sidewalk riding, trails, bike paths, park access, or riding on school campuses. Those local rules are not covered here.";
+/**
+ * Coverage copy for the "What this result does not decide" section.
+ *
+ * Two variants so the wording stays accurate whether or not a city card is
+ * shown below the statewide result. Neither variant implies comprehensive
+ * city coverage. Presentation only — this never affects the legal outcome.
+ */
+
+/** Shown when the city select is left on "Statewide only". */
+export const NOT_CHECKED_NOTE_STATEWIDE_ONLY =
+  "This statewide age and helmet result does not decide where an e-bike may be ridden. No local city rules are included in this result. Cities, counties, parks, school districts, and individual facilities may restrict sidewalk riding, trails, bike paths, park access, riding speed, or riding on school campuses. Select a city to see the verified local rules included in this version.";
+
+/** Shown when a covered city is selected; a separate local card appears below. */
+export function notCheckedNoteWithCity(cityName: string): string {
+  return `This statewide age and helmet result does not decide where an e-bike may be ridden. The separate ${cityName} card below lists only the local rules that have been verified and included in this version — it is not a complete list of every local rule. Other city, county, park, school-district, facility, and posted-sign restrictions may still apply.`;
+}
+
+/** @deprecated Use `NOT_CHECKED_NOTE_STATEWIDE_ONLY` or `notCheckedNoteWithCity()`. */
+export const NOT_CHECKED_NOTE = NOT_CHECKED_NOTE_STATEWIDE_ONLY;
+
 
 /** Assumption notice shown on every result. */
 export const LEGAL_EBIKE_ASSUMPTION =
