@@ -38,7 +38,7 @@ function StoppingPage() {
   const search = Route.useSearch();
   const handoff = parseStoppingHandoff(search);
   return (
-    <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-2 sm:px-6">
+    <main id="main-content" className="mx-auto w-full max-w-2xl px-4 pb-28 pt-6 sm:px-6 md:pb-16">
       <header className="mb-6">
         <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
           <Timer className="size-3.5" aria-hidden="true" />
