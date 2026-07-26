@@ -99,7 +99,6 @@ export function NumericField({
             type="number"
             inputMode="decimal"
             min={0}
-            disabled={unknown}
             placeholder={placeholder}
             value={value.known ? String(value.value) : ""}
             onChange={(event) => {
@@ -110,11 +109,7 @@ export function NumericField({
               }
               onChange({ known: true, value: Number(raw) });
             }}
-            className={cn(
-              "min-h-12 w-full rounded-lg border border-input bg-card pl-3 pr-14 text-base",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              unknown && "opacity-50",
-            )}
+            className="min-h-12 w-full rounded-lg border border-input bg-card pl-3 pr-14 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
             {unit}
