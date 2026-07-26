@@ -37,16 +37,17 @@ function RulesPage() {
       <header className="mb-6">
         <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
           <ShieldCheck className="size-3.5" aria-hidden="true" />
-          Rider Rules
+          Ride Check
         </span>
         <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">
-          What statewide rules apply to this rider?
+          Can this rider ride here?
         </h1>
         <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-          Enter the rider&apos;s age and the e-bike class to check California&apos;s statewide age
-          and helmet requirements. City rules may add restrictions.
+          Combine the rider, vehicle and planned location to check the verified statewide and local
+          rules in this app.
         </p>
       </header>
+
 
       <RiderRules carriedOverClass={carriedOverClass} />
     </main>
