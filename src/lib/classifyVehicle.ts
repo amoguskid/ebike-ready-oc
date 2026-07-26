@@ -136,10 +136,7 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
       "not-an-ebike",
       "Does Not Meet California E-Bike Definition",
       `The motor keeps assisting up to ${input.maxPedalAssistedSpeedMph.value} mph. The highest assisted speed any California e-bike class allows is ${CA_RULES.CLASS_3_MAX_ASSIST_MPH} mph (Class 3), so this vehicle is not an electric bicycle.`,
-      [
-        ...warnings,
-        "Confirm the correct vehicle category with the California DMV before riding on public roads.",
-      ],
+      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
     );
   }
@@ -155,16 +152,17 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
       "not-an-ebike",
       "Does Not Meet California E-Bike Definition",
       `The motor can propel this vehicle to ${input.maxMotorOnlySpeedMph.value} mph without any pedaling. California allows throttle power only up to ${CA_RULES.MAX_THROTTLE_ONLY_MPH} mph (Class 2), so this vehicle is not an electric bicycle.`,
-      [
-        ...warnings,
-        "A throttle that exceeds the limit usually places a vehicle in the moped or motor-driven cycle category.",
-      ],
+      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
     );
   }
 
   /* RULE 5 — Anything still unknown or unsure that we need => Needs Verification. */
   const missing: string[] = [];
+  if (isUnsure(input.advertisedAsModifiable))
+    missing.push(
+      "whether the manufacturer advertises an unlock, de-restriction or app setting that allows more than 20 mph on motor power alone or more than 750 watts",
+    );
   if (isUnsure(input.hasOperablePedals)) missing.push("whether the pedals are fully operable");
   if (!known(input.motorWatts)) missing.push("the motor wattage");
   if (isUnsure(input.motorPropelsWithoutPedaling))
