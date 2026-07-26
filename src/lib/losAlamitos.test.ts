@@ -191,6 +191,6 @@ describe("existing cities are unchanged", () => {
   it("never claims Cypress has a blanket sidewalk ban", () => {
     const cypress = getLocalCityRules("cypress", "class-1")!;
     expect(cypress.bullets.join(" ")).not.toMatch(/sidewalk/i);
-    expect(cypress.sidewalkRuleByClass ?? null).toBeNull();
+    expect(CITY_RULES.cypress.sidewalkRuleByClass).toBeNull();
   });
 });
