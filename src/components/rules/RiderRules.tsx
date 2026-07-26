@@ -148,6 +148,7 @@ export function RiderRules({
                   aria-checked={selected}
                   onClick={() => {
                     setClassSelection(option.value);
+                    setClassCarriedOver(false);
                     clearResult();
                   }}
 
