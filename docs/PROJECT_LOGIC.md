@@ -14,7 +14,7 @@ electric-bicycle law and safety in California. It has three working modules:
 | --- | --- | --- |
 | **Class Checker** (default) | `/` (`src/routes/index.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
-| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result. Statewide only — no city or local data. |
+| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for four verified Orange County cities (Anaheim, Cypress, Garden Grove, Stanton). A city selection never changes the statewide result. |
 
 Navigation between the three lives in the root layout, `src/routes/__root.tsx`.
 
@@ -71,8 +71,52 @@ client-side from constants stored in the repository.
   `getStatewideRiderRules(input: RiderInput): RiderRulesResult | null`
   (returns `null` for any invalid age, so invalid input produces no result).
 - `src/lib/getStatewideRiderRules.test.ts` — 21 vitest cases.
-- UI: `src/components/rules/RiderRules.tsx` (`RiderRules`, `RiderResultCard`).
-  It reuses `FieldShell` from the classifier and the shared design tokens.
+- UI: `src/components/rules/RiderRules.tsx` (`RiderRules`, `RiderResultCard`,
+  `LocalRulesCard`). It reuses `FieldShell` from the classifier and the shared
+  design tokens.
+
+#### Orange County local city-rules layer (added July 26, 2026)
+- `src/types/cityRules.ts` — `CityId`
+  (`"statewide-only" | "anaheim" | "cypress" | "garden-grove" | "stanton"`),
+  `CityRules` (id, name, optional class-aware `sidewalkRuleByClass`, `bullets`,
+  `coverageNote`, `sources`), `LocalRulesResult`.
+- `src/data/cityRules.ts` — all verified city text and sources, plus
+  `CITY_RULES_VERIFIED_DATE` ("Sources checked July 26, 2026"),
+  `CITY_SELECT_HELPER`, `LOCAL_RULES_CHANGE_NOTE`, `LOCAL_VS_CLASS_NOTE`,
+  `CITY_OPTIONS`, `CITY_RULES`.
+- `src/lib/getLocalCityRules.ts` — pure selector
+  `getLocalCityRules(cityId, classSelection): LocalRulesResult | null` and
+  `isCoveredCity(cityId)`. Returns `null` for the statewide-only default.
+- `src/lib/getLocalCityRules.test.ts` — 17 vitest cases.
+
+**Form.** `/rules` has an optional "City" select after the e-bike class,
+defaulting to *Statewide only*, with the helper text "Initial verified coverage.
+More Orange County cities will be added only after official-source review."
+Changing age, class or city clears any prior result.
+
+**Separation guarantee.** `getStatewideRiderRules()` takes no city argument, so
+a city selection can never change the statewide age or helmet outcome. The
+statewide cards render first; the local card is a separate card below them.
+
+**Coverage limits.** Four Orange County cities only — this is *not*
+comprehensive Orange County coverage and is not legal advice. Posted signs and
+facility-specific rules may be more restrictive.
+
+| City | Verified scope | Coverage note |
+| --- | --- | --- |
+| Anaheim | Class-aware sidewalk rule (Class 1/2 allowed except business districts or where signed, must yield, no throttle-only; Class 3 not allowed); 5 mph sidewalks; 20 mph public streets/paths/lanes (AMC §14.72.030); no public parks; no unpaved hiking/equestrian/walking trails; 10 mph paved trails; no wheelies/stunts; no handheld phone use. | none |
+| Cypress | Park/recreation-facility rule only: motorized vehicles only on surfaces maintained and open for public vehicular travel; bicycles, scooters, skateboards, roller skates and other motorized vehicles not used outside designated areas except at sanctioned events. | No citywide sidewalk rule in this version. |
+| Garden Grove | Park rule only: bicycles and e-bikes may not be ridden on park property except on roads or paths designated for their use. | No citywide sidewalk or trail speed rule in this version. |
+| Stanton | 5 mph sidewalks; 20 mph public rights-of-way, bike paths, bike lanes and places generally open to the public; no city parks; no unpaved hiking/equestrian/walking trails; 10 mph paved trails; no wheelies/stunts; no tampering to increase speed; no handheld phone use. | none |
+
+**Official local sources (checked July 26, 2026).**
+- Anaheim Police Department, "E-Bike Safety" — https://pd.anaheim.net/317/E-Bike-Safety
+- Anaheim Municipal Code §14.72.030, "Unsafe Operation" — https://codelibrary.amlegal.com/codes/anaheim/latest/anaheim_ca/0-0-0-85704
+- City of Cypress, "Park Rules," Cypress Municipal Code §17-72 — https://www.cypressca.org/activities/facility-park-locations/park-rules
+- City of Garden Grove, "Garden Grove Park Facilities Rules and Regulations" — https://ggcity.org/sites/default/files/garden-grove-park-facilities-rules_2022.pdf
+- City of Stanton, "New E-Bike Regulations" — https://www.stantonca.gov/news_detail_T9_R303.php
+- Stanton Municipal Code Chapter 10.38, including §10.38.030 — https://ecode360.com/48454334
+
 
 **Inputs:** rider age in years (required whole number, 1–120, with validation
 messages for blank, decimal, zero, negative and over-120 values) and vehicle

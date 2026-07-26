@@ -1,16 +1,33 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, ExternalLink, HardHat, Info, UserCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ExternalLink,
+  HardHat,
+  Info,
+  MapPin,
+  UserCheck,
+} from "lucide-react";
 import { FieldShell } from "@/components/classifier/fields";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
+import {
+  CITY_OPTIONS,
+  CITY_SELECT_HELPER,
+  LOCAL_RULES_CHANGE_NOTE,
+  LOCAL_VS_CLASS_NOTE,
+} from "@/data/cityRules";
 import {
   LEGAL_EBIKE_ASSUMPTION,
   NOT_CHECKED_NOTE,
   UNVERIFIED_CLASS_ASSUMPTION,
 } from "@/data/riderRules";
+import { getLocalCityRules } from "@/lib/getLocalCityRules";
 import { getStatewideRiderRules, validateAge } from "@/lib/getStatewideRiderRules";
 import { cn } from "@/lib/utils";
+import type { CityId, LocalRulesResult } from "@/types/cityRules";
 import type { RiderClassSelection, RiderRulesResult } from "@/types/riderRules";
+
 
 /** Presentation only — all statewide rule logic lives in getStatewideRiderRules.ts. */
 
@@ -36,8 +53,16 @@ const HELMET_TONE = {
 export function RiderRules() {
   const [age, setAge] = useState("");
   const [classSelection, setClassSelection] = useState<RiderClassSelection>("class-1");
+  const [cityId, setCityId] = useState<CityId>("statewide-only");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<RiderRulesResult | null>(null);
+  const [localRules, setLocalRules] = useState<LocalRulesResult | null>(null);
+
+  /** Any edit to age, class or city clears stale guidance. */
+  function clearResult() {
+    setResult(null);
+    setLocalRules(null);
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -45,24 +70,26 @@ export function RiderRules() {
     const validation = validateAge(age);
     if (!validation.valid) {
       setError(validation.message);
-      setResult(null);
+      clearResult();
       return;
     }
     setError(null);
+    // Statewide result is computed from age + class ONLY — city never affects it.
     setResult(getStatewideRiderRules({ ageYears: validation.value, classSelection }));
+    setLocalRules(getLocalCityRules(cityId, classSelection));
   }
 
   function handleAgeChange(raw: string) {
     setAge(raw);
-    // Any edit invalidates the previous result so stale guidance is never shown.
-    setResult(null);
+    clearResult();
     const validation = validateAge(raw);
     setError(validation.valid ? null : error ? validation.message : null);
   }
 
   if (result) {
-    return <RiderResultCard result={result} onEdit={() => setResult(null)} />;
+    return <RiderResultCard result={result} localRules={localRules} onEdit={clearResult} />;
   }
+
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -114,7 +141,11 @@ export function RiderRules() {
                   type="button"
                   role="radio"
                   aria-checked={selected}
-                  onClick={() => setClassSelection(option.value)}
+                  onClick={() => {
+                    setClassSelection(option.value);
+                    clearResult();
+                  }}
+
                   className={cn(
                     "min-h-12 rounded-lg border px-3 text-base font-semibold transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -129,7 +160,26 @@ export function RiderRules() {
             })}
           </div>
         </FieldShell>
+
+        <FieldShell label="City (optional)" hint={CITY_SELECT_HELPER} htmlFor="rider-city">
+          <select
+            id="rider-city"
+            value={cityId}
+            onChange={(event) => {
+              setCityId(event.target.value as CityId);
+              clearResult();
+            }}
+            className="min-h-12 w-full rounded-lg border border-input bg-card px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            {CITY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </FieldShell>
       </div>
+
 
       <button
         type="submit"
@@ -146,7 +196,15 @@ export function RiderRules() {
   );
 }
 
-function RiderResultCard({ result, onEdit }: { result: RiderRulesResult; onEdit: () => void }) {
+function RiderResultCard({
+  result,
+  localRules,
+  onEdit,
+}: {
+  result: RiderRulesResult;
+  localRules: LocalRulesResult | null;
+  onEdit: () => void;
+}) {
   return (
     <section aria-live="polite" className="space-y-4">
       <div className="surface-card overflow-hidden">
@@ -227,6 +285,9 @@ function RiderResultCard({ result, onEdit }: { result: RiderRulesResult; onEdit:
         </div>
       </div>
 
+      {localRules ? <LocalRulesCard localRules={localRules} /> : null}
+
+
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
         <p>
           {result.requiresClassVerification ? UNVERIFIED_CLASS_ASSUMPTION : LEGAL_EBIKE_ASSUMPTION}
@@ -246,3 +307,74 @@ function RiderResultCard({ result, onEdit }: { result: RiderRulesResult; onEdit:
     </section>
   );
 }
+
+/** Local city rules — presentation only; all data comes from `cityRules.ts`. */
+function LocalRulesCard({ localRules }: { localRules: LocalRulesResult }) {
+  return (
+    <section
+      aria-label={localRules.title}
+      className="surface-card overflow-hidden border-2 border-primary/30"
+    >
+      <div className="border-b border-border bg-info-soft px-5 py-4 sm:px-7">
+        <h2 className="flex items-center gap-2 text-lg font-bold">
+          <MapPin className="size-4 shrink-0 text-primary" aria-hidden="true" />
+          {localRules.title}
+        </h2>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {localRules.verifiedDate}
+        </p>
+      </div>
+
+      <div className="px-5 py-5 sm:px-7">
+        <ul className="space-y-2.5">
+          {localRules.bullets.map((bullet) => (
+            <li key={bullet} className="flex gap-2.5 text-sm leading-relaxed">
+              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+
+        {localRules.coverageNote ? (
+          <div className="mt-4 rounded-xl bg-caution-soft px-4 py-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide">Coverage note</h3>
+            <p className="mt-1.5 text-sm leading-relaxed">{localRules.coverageNote}</p>
+          </div>
+        ) : null}
+
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{LOCAL_VS_CLASS_NOTE}</p>
+      </div>
+
+      <div className="border-t border-border px-5 py-5 sm:px-7">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Official {localRules.cityName} sources
+        </h3>
+        <ul className="mt-3 space-y-3">
+          {localRules.sources.map((source) => (
+            <li key={source.url}>
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="group flex items-start gap-2 rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <ExternalLink className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                <span>
+                  <span className="font-semibold text-primary group-hover:underline">
+                    {source.citation}
+                  </span>
+                  <span className="block text-muted-foreground">{source.label}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          {LOCAL_RULES_CHANGE_NOTE} Posted signs and facility-specific rules may be more
+          restrictive.
+        </p>
+      </div>
+    </section>
+  );
+}
+
