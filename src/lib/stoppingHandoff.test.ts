@@ -116,7 +116,7 @@ describe("carried speed drives the existing physics", () => {
 describe("legal results are unaffected by the simulator handoff", () => {
   it("an under-16 Class 3 rider is still Not permitted but still gets the action", () => {
     const result = getStatewideRiderRules({ ageYears: 15, classSelection: "class-3" });
-    expect(result.ageStatus).toBe("not-permitted");
+    expect(result?.ageStatus).toBe("not-permitted");
     expect(stoppingActionLabel("class-3")).toBe("See stopping distance at 28 mph");
     expect(toStoppingSearch("class-3")).toEqual({ speed: 28, from: "class-3" });
   });
