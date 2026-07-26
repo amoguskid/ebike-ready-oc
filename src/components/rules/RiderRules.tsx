@@ -619,7 +619,7 @@ function RiderResultCard({
         </h3>
         <Link
           to="/stopping"
-          search={toStoppingSearch(classSelection)}
+          search={toStoppingSearch(classSelection) as never}
           className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <Timer className="size-4" aria-hidden="true" />
