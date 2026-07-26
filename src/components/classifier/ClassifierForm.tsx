@@ -98,11 +98,12 @@ export function ClassifierForm({
           onChange={setTri("hasSpeedometer")}
         />
         <TriStateField
-          label="Is it advertised as modifiable beyond these speed or power limits?"
-          hint="For example an unlock mode, tuning app, or “de-restrict” option."
+          label="Does the manufacturer advertise an unlock, de-restriction, app setting, or modification that allows the vehicle to exceed 20 mph on motor power alone or exceed 750 watts?"
+          hint="Check the manufacturer’s description, manual, app and product listing—not just the seller’s current settings."
           value={vehicle.advertisedAsModifiable}
           onChange={setTri("advertisedAsModifiable")}
         />
+
       </div>
 
       <button
