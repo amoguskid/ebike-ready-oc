@@ -307,3 +307,74 @@ function RiderResultCard({
     </section>
   );
 }
+
+/** Local city rules — presentation only; all data comes from `cityRules.ts`. */
+function LocalRulesCard({ localRules }: { localRules: LocalRulesResult }) {
+  return (
+    <section
+      aria-label={localRules.title}
+      className="surface-card overflow-hidden border-2 border-primary/30"
+    >
+      <div className="border-b border-border bg-info-soft px-5 py-4 sm:px-7">
+        <h2 className="flex items-center gap-2 text-lg font-bold">
+          <MapPin className="size-4 shrink-0 text-primary" aria-hidden="true" />
+          {localRules.title}
+        </h2>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {localRules.verifiedDate}
+        </p>
+      </div>
+
+      <div className="px-5 py-5 sm:px-7">
+        <ul className="space-y-2.5">
+          {localRules.bullets.map((bullet) => (
+            <li key={bullet} className="flex gap-2.5 text-sm leading-relaxed">
+              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+
+        {localRules.coverageNote ? (
+          <div className="mt-4 rounded-xl bg-caution-soft px-4 py-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide">Coverage note</h3>
+            <p className="mt-1.5 text-sm leading-relaxed">{localRules.coverageNote}</p>
+          </div>
+        ) : null}
+
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{LOCAL_VS_CLASS_NOTE}</p>
+      </div>
+
+      <div className="border-t border-border px-5 py-5 sm:px-7">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Official {localRules.cityName} sources
+        </h3>
+        <ul className="mt-3 space-y-3">
+          {localRules.sources.map((source) => (
+            <li key={source.url}>
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="group flex items-start gap-2 rounded-md text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <ExternalLink className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                <span>
+                  <span className="font-semibold text-primary group-hover:underline">
+                    {source.citation}
+                  </span>
+                  <span className="block text-muted-foreground">{source.label}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          {LOCAL_RULES_CHANGE_NOTE} Posted signs and facility-specific rules may be more
+          restrictive.
+        </p>
+      </div>
+    </section>
+  );
+}
+
