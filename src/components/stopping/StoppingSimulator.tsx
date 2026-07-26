@@ -147,8 +147,8 @@ export function StoppingSimulator() {
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="text-base font-semibold">{option.label}</span>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      µ {option.friction.toFixed(2)}
+                    <span className="text-xs font-semibold tracking-wide text-muted-foreground">
+                      friction {option.friction.toFixed(2)}
                     </span>
                   </span>
                   <span className="mt-0.5 block text-sm text-muted-foreground">
