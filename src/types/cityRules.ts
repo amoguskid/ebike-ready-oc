@@ -9,7 +9,13 @@ import type { RiderClassSelection } from "@/types/riderRules";
 import type { SourceLink } from "@/types/vehicle";
 
 /** Cities with verified coverage, plus the statewide-only default. */
-export type CityId = "statewide-only" | "anaheim" | "cypress" | "garden-grove" | "stanton";
+export type CityId =
+  | "statewide-only"
+  | "anaheim"
+  | "cypress"
+  | "garden-grove"
+  | "los-alamitos"
+  | "stanton";
 
 /** Verified local-rule data for one city. */
 export interface CityRules {

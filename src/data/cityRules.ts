@@ -30,6 +30,7 @@ export const CITY_OPTIONS: { value: CityId; label: string }[] = [
   { value: "anaheim", label: "Anaheim" },
   { value: "cypress", label: "Cypress" },
   { value: "garden-grove", label: "Garden Grove" },
+  { value: "los-alamitos", label: "Los Alamitos" },
   { value: "stanton", label: "Stanton" },
 ];
 
