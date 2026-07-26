@@ -96,6 +96,15 @@ export const CA_SOURCES = [
   },
 ] as const;
 
+/**
+ * Extra source appended only when a result mentions the under-18 helmet rule.
+ */
+export const HELMET_UNDER_18_SOURCE = {
+  label: "Helmet requirement for bicycle and e-bike riders under 18",
+  citation: "California Vehicle Code § 21212",
+  url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=21212.",
+} as const;
+
 /** Standard disclaimer shown with every result. */
 export const DISCLAIMER =
   "Educational guidance based on user-entered specifications. Verify uncertain classifications with the California DMV or local authorities.";
