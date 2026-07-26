@@ -80,10 +80,7 @@ export function RiderRules() {
             max={120}
             step={1}
             value={age}
-            onChange={(event) => {
-              setAge(event.target.value);
-              if (error) setError(null);
-            }}
+            onChange={(event) => handleAgeChange(event.target.value)}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "rider-age-error" : undefined}
             placeholder="e.g. 15"
