@@ -288,7 +288,6 @@ function RiderResultCard({
       {localRules ? <LocalRulesCard localRules={localRules} /> : null}
 
 
-
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
         <p>
           {result.requiresClassVerification ? UNVERIFIED_CLASS_ASSUMPTION : LEGAL_EBIKE_ASSUMPTION}
