@@ -160,7 +160,26 @@ export function RiderRules() {
             })}
           </div>
         </FieldShell>
+
+        <FieldShell label="City (optional)" hint={CITY_SELECT_HELPER} htmlFor="rider-city">
+          <select
+            id="rider-city"
+            value={cityId}
+            onChange={(event) => {
+              setCityId(event.target.value as CityId);
+              clearResult();
+            }}
+            className="min-h-12 w-full rounded-lg border border-input bg-card px-3 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            {CITY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </FieldShell>
       </div>
+
 
       <button
         type="submit"
