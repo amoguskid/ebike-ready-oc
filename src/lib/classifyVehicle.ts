@@ -88,14 +88,15 @@ function build(
 export function classifyVehicle(input: VehicleInput): ClassificationResult {
   const warnings: string[] = [];
 
-  // A note that applies to every outcome, but never changes the outcome.
+  /* RULE 0 — Manufacturer advertises an unlock / de-restriction beyond the
+     California limits => excluded from the e-bike definition entirely. */
   if (isYes(input.advertisedAsModifiable)) {
-    warnings.push(
-      "This vehicle is advertised as modifiable beyond the entered speed or power limits. If it is unlocked or de-restricted, it can stop being an electric bicycle under California law.",
-    );
-  } else if (isUnsure(input.advertisedAsModifiable)) {
-    warnings.push(
-      "You were unsure whether this vehicle is advertised as modifiable. Check the seller's listing and any app settings that raise the speed limit.",
+    return build(
+      "not-an-ebike",
+      "Does Not Meet California E-Bike Definition",
+      `California Vehicle Code § 312.5(d)(1) excludes a vehicle that the manufacturer intends to be modifiable — through an unlock, de-restriction, app setting, or other modification — so that it can exceed ${CA_RULES.MAX_THROTTLE_ONLY_MPH} mph on motor power alone or exceed ${CA_RULES.MAX_MOTOR_WATTS} watts. Because the manufacturer advertises that capability, this vehicle is not an electric bicycle under California law, even if it is currently set to lower limits.`,
+      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
+      input,
     );
   }
 
@@ -104,11 +105,11 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
     return build(
       "not-an-ebike",
       "Does Not Meet California E-Bike Definition",
-      "California requires an electric bicycle to have fully operable pedals. Because this vehicle has none, it is not an electric bicycle. Vehicles like this are usually treated as mopeds, motor-driven cycles, or motorcycles, which have licensing, registration, and insurance requirements.",
+      "California requires an electric bicycle to have fully operable pedals. Because this vehicle has none, it is not an electric bicycle.",
       [
         ...warnings,
         "Riding this on bike paths, bike lanes, or sidewalks is generally not allowed.",
-        "Confirm the correct vehicle category with the California DMV before riding on public roads.",
+        UNCLASSIFIED_VEHICLE_NOTE,
       ],
       input,
     );
@@ -120,13 +121,11 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
       "not-an-ebike",
       "Does Not Meet California E-Bike Definition",
       `The motor is rated at ${input.motorWatts.value} watts, which is above California's ${CA_RULES.MAX_MOTOR_WATTS}-watt limit for an electric bicycle. Because of that single specification, this vehicle falls outside all three e-bike classes.`,
-      [
-        ...warnings,
-        "Vehicles above the wattage limit are generally treated as mopeds or motorcycles and may require a license, registration, and insurance.",
-      ],
+      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
     );
   }
+
 
   /* RULE 3 — Pedal-assist above the Class 3 ceiling => not an electric bicycle. */
   if (
