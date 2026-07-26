@@ -194,7 +194,13 @@ export function DecisionScenarios() {
               <p className="mt-2 text-base leading-relaxed text-foreground/80">
                 {scenario.explanation}
               </p>
+              {scenario.generatedNote ? (
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  {scenario.generatedNote}
+                </p>
+              ) : null}
             </div>
+
 
             {scenario.sources.length > 0 ? (
               <div className="border-t border-border px-5 py-5 sm:px-7">
