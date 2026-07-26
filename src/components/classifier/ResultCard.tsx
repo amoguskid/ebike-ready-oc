@@ -62,6 +62,8 @@ export function ResultCard({
 }) {
   const tone = TONE[result.code];
   const Icon = tone.icon;
+  const handoffClass = toRulesClassParam(result.code);
+
 
   return (
     <section aria-live="polite" className="space-y-4">
