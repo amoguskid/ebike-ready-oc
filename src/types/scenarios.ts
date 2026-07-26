@@ -5,6 +5,7 @@
  * elsewhere in the project. No new legal logic is introduced here.
  */
 
+import type { RideDecisionInput } from "@/types/rideDecision";
 import type { SourceLink } from "@/types/vehicle";
 
 /** Outcome labels. "Safer choice" is a safety recommendation, not a legal rule. */
