@@ -96,7 +96,14 @@ export function RiderRules({
   }
 
   if (result) {
-    return <RiderResultCard result={result} localRules={localRules} onEdit={clearResult} />;
+    return (
+      <RiderResultCard
+        result={result}
+        localRules={localRules}
+        classSelection={classSelection}
+        onEdit={clearResult}
+      />
+    );
   }
 
 
