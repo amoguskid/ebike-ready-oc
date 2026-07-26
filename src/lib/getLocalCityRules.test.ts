@@ -174,3 +174,46 @@ describe("source isolation and metadata", () => {
     ]);
   });
 });
+
+/**
+ * Mirrors the form's clear-on-edit behavior: changing the city (like changing
+ * age or class) discards the previous result before a new submit.
+ */
+describe("editing the city clears the previous result", () => {
+  function makeForm() {
+    let city: CityId = "statewide-only";
+    let result: { statewide: unknown; local: unknown } | null = null;
+    return {
+      get result() {
+        return result;
+      },
+      setCity(next: CityId) {
+        city = next;
+        result = null; // clearResult()
+      },
+      submit() {
+        result = {
+          statewide: getStatewideRiderRules({ ageYears: 17, classSelection: "class-1" }),
+          local: getLocalCityRules(city, "class-1"),
+        };
+        return result;
+      },
+    };
+  }
+
+  it("clears the result when the city changes and recomputes on resubmit", () => {
+    const form = makeForm();
+    form.submit();
+    expect(form.result).not.toBeNull();
+    expect((form.result as { local: unknown }).local).toBeNull();
+
+    form.setCity("anaheim");
+    expect(form.result).toBeNull();
+
+    form.submit();
+    expect((form.result as { local: { cityName: string } }).local.cityName).toBe("Anaheim");
+
+    form.setCity("statewide-only");
+    expect(form.result).toBeNull();
+  });
+});
