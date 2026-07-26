@@ -7,8 +7,10 @@ import {
   HardHat,
   Info,
   MapPin,
+  Timer,
   UserCheck,
 } from "lucide-react";
+import { stoppingActionLabel, toStoppingSearch } from "@/lib/stoppingHandoff";
 import { FieldShell } from "@/components/classifier/fields";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
 import {
