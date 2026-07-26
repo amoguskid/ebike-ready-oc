@@ -13,6 +13,7 @@ import { Route as StoppingRouteImport } from './routes/stopping'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScenariosRouteImport } from './routes/scenarios'
 import { Route as RulesRouteImport } from './routes/rules'
+import { Route as ClassifyRouteImport } from './routes/classify'
 import { Route as IndexRouteImport } from './routes/index'
 
 const StoppingRoute = StoppingRouteImport.update({
@@ -35,6 +36,11 @@ const RulesRoute = RulesRouteImport.update({
   path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClassifyRoute = ClassifyRouteImport.update({
+  id: '/classify',
+  path: '/classify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/classify': typeof ClassifyRoute
   '/rules': typeof RulesRoute
   '/scenarios': typeof ScenariosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/classify': typeof ClassifyRoute
   '/rules': typeof RulesRoute
   '/scenarios': typeof ScenariosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/classify': typeof ClassifyRoute
   '/rules': typeof RulesRoute
   '/scenarios': typeof ScenariosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -65,14 +74,28 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/rules' | '/scenarios' | '/sitemap.xml' | '/stopping'
+  fullPaths:
+    | '/'
+    | '/classify'
+    | '/rules'
+    | '/scenarios'
+    | '/sitemap.xml'
+    | '/stopping'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/rules' | '/scenarios' | '/sitemap.xml' | '/stopping'
-  id: '__root__' | '/' | '/rules' | '/scenarios' | '/sitemap.xml' | '/stopping'
+  to: '/' | '/classify' | '/rules' | '/scenarios' | '/sitemap.xml' | '/stopping'
+  id:
+    | '__root__'
+    | '/'
+    | '/classify'
+    | '/rules'
+    | '/scenarios'
+    | '/sitemap.xml'
+    | '/stopping'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ClassifyRoute: typeof ClassifyRoute
   RulesRoute: typeof RulesRoute
   ScenariosRoute: typeof ScenariosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -109,6 +132,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/classify': {
+      id: '/classify'
+      path: '/classify'
+      fullPath: '/classify'
+      preLoaderRoute: typeof ClassifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,6 +151,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ClassifyRoute: ClassifyRoute,
   RulesRoute: RulesRoute,
   ScenariosRoute: ScenariosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
