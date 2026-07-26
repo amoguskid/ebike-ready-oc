@@ -17,23 +17,22 @@ import type {
   RiderRulesResult,
 } from "@/types/riderRules";
 
-/** Validate the raw age field. Returns a message instead of a result when invalid. */
+/**
+ * Validate the RAW age field exactly as typed. Blank, decimal, negative, zero,
+ * non-numeric and out-of-range values are all rejected, so no result can ever
+ * be produced from a stale or invalid age.
+ */
 export function validateAge(raw: string): AgeValidation {
   const trimmed = raw.trim();
   if (trimmed === "") return { valid: false, message: AGE_VALIDATION_MESSAGES.blank };
+  if (!/^\d+$/.test(trimmed)) return { valid: false, message: AGE_VALIDATION_MESSAGES.notWhole };
 
   const value = Number(trimmed);
-  if (!Number.isFinite(value)) return { valid: false, message: AGE_VALIDATION_MESSAGES.notWhole };
-  if (!Number.isInteger(value)) return { valid: false, message: AGE_VALIDATION_MESSAGES.notWhole };
-  if (value < RIDER_RULES.MIN_AGE) {
-    return {
-      valid: false,
-      message: value <= 0 ? AGE_VALIDATION_MESSAGES.tooLow : AGE_VALIDATION_MESSAGES.tooLow,
-    };
+  if (!Number.isFinite(value) || !Number.isInteger(value)) {
+    return { valid: false, message: AGE_VALIDATION_MESSAGES.notWhole };
   }
-  if (value > RIDER_RULES.MAX_AGE) {
-    return { valid: false, message: AGE_VALIDATION_MESSAGES.tooHigh };
-  }
+  if (value < RIDER_RULES.MIN_AGE) return { valid: false, message: AGE_VALIDATION_MESSAGES.tooLow };
+  if (value > RIDER_RULES.MAX_AGE) return { valid: false, message: AGE_VALIDATION_MESSAGES.tooHigh };
   return { valid: true, value };
 }
 
