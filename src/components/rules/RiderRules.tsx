@@ -17,7 +17,11 @@ import {
   LOCAL_RULES_CHANGE_NOTE,
   LOCAL_VS_CLASS_NOTE,
 } from "@/data/cityRules";
-import { LEGAL_EBIKE_ASSUMPTION, UNVERIFIED_CLASS_ASSUMPTION } from "@/data/riderRules";
+import {
+  CLASS_CARRIED_OVER_NOTE,
+  LEGAL_EBIKE_ASSUMPTION,
+  UNVERIFIED_CLASS_ASSUMPTION,
+} from "@/data/riderRules";
 import { getCoverageNote } from "@/lib/getCoverageNote";
 import { getLocalCityRules } from "@/lib/getLocalCityRules";
 import { getStatewideRiderRules, validateAge } from "@/lib/getStatewideRiderRules";
