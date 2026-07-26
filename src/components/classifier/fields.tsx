@@ -100,7 +100,7 @@ export function NumericField({
             inputMode="decimal"
             min={0}
             placeholder={placeholder}
-            value={value.known ? String(value.value) : ""}
+            value={value.known && Number.isFinite(value.value) ? String(value.value) : ""}
             onChange={(event) => {
               const raw = event.target.value;
               if (raw === "") {
