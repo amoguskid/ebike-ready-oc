@@ -35,6 +35,8 @@ export const Route = createFileRoute("/stopping")({
 
 
 function StoppingPage() {
+  const search = Route.useSearch();
+  const handoff = parseStoppingHandoff(search);
   return (
     <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-2 sm:px-6">
       <header className="mb-6">
