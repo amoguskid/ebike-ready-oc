@@ -112,12 +112,19 @@ describe("classifyVehicle", () => {
     expect(result.code).toBe("not-an-ebike");
   });
 
-  // 11. Modifiable advertising adds a warning but never changes the class.
-  it("Case 11 — advertised as modifiable => Class 1 plus a warning", () => {
+  // 11. Manufacturer-advertised unlock beyond the limits => excluded outright.
+  it("Case 11 — manufacturer advertises an unlock => Does Not Meet Definition", () => {
     const result = classifyVehicle(v({ advertisedAsModifiable: "yes" }));
-    expect(result.code).toBe("class-1");
-    expect(result.warnings.join(" ")).toContain("modifiable");
+    expect(result.code).toBe("not-an-ebike");
+    expect(result.explanation).toContain("312.5(d)(1)");
   });
+
+  // 11b. Unsure about the unlock => Needs Verification, never a class result.
+  it("Case 11b — unsure about a manufacturer unlock => Needs Verification", () => {
+    const result = classifyVehicle(v({ advertisedAsModifiable: "unsure" }));
+    expect(result.code).toBe("needs-verification");
+  });
+
 
   // 12. Every result always carries the specs and official sources.
   it("Case 12 — every result includes triggering specs and sources", () => {

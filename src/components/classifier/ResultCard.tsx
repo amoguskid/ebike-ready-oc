@@ -1,5 +1,5 @@
 import { AlertTriangle, ArrowLeft, BadgeCheck, ExternalLink, HelpCircle, Info } from "lucide-react";
-import { DISCLAIMER } from "@/data/californiaRules";
+import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
 import { cn } from "@/lib/utils";
 import type { ClassificationCode, ClassificationResult } from "@/types/vehicle";
 
@@ -133,9 +133,11 @@ export function ResultCard({
         </div>
       </div>
 
-      <p className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
-        {DISCLAIMER}
-      </p>
+      <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+        <p>{DISCLAIMER}</p>
+        <p className="mt-1.5 text-xs font-medium">{LEGAL_REVIEW_DATE}</p>
+      </div>
+
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <button

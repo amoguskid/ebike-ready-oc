@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Bike, ShieldCheck } from "lucide-react";
 import { ClassifierForm, EMPTY_VEHICLE } from "@/components/classifier/ClassifierForm";
 import { ResultCard } from "@/components/classifier/ResultCard";
-import { DISCLAIMER } from "@/data/californiaRules";
+import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
 import { classifyVehicle } from "@/lib/classifyVehicle";
 import type { ClassificationResult, VehicleInput } from "@/types/vehicle";
 
@@ -65,8 +65,12 @@ function Index() {
           />
           <div className="mt-4 flex gap-2.5 rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-            <p>{DISCLAIMER}</p>
+            <div>
+              <p>{DISCLAIMER}</p>
+              <p className="mt-1.5 text-xs font-medium">{LEGAL_REVIEW_DATE}</p>
+            </div>
           </div>
+
         </>
       )}
     </main>
