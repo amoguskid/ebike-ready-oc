@@ -57,8 +57,15 @@ describe("parseRulesClassParam", () => {
     }
   });
 
+  it("accepts numeric values (the router parses ?class=3 as a number)", () => {
+    expect(parseRulesClassParam(1)).toBe("class-1");
+    expect(parseRulesClassParam(2)).toBe("class-2");
+    expect(parseRulesClassParam(3)).toBe("class-3");
+    expect(parseRulesClassParam(4)).toBeNull();
+  });
+
   it("returns null without throwing for missing or invalid values", () => {
-    for (const raw of [undefined, null, "", " ", "4", "class-4", "banana", 3, {}, []]) {
+    for (const raw of [undefined, null, "", " ", "4", "class-4", "banana", {}, []]) {
       expect(parseRulesClassParam(raw)).toBeNull();
     }
   });
