@@ -141,7 +141,11 @@ export function RiderRules() {
                   type="button"
                   role="radio"
                   aria-checked={selected}
-                  onClick={() => setClassSelection(option.value)}
+                  onClick={() => {
+                    setClassSelection(option.value);
+                    clearResult();
+                  }}
+
                   className={cn(
                     "min-h-12 rounded-lg border px-3 text-base font-semibold transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
