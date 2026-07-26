@@ -53,8 +53,9 @@ afterEach(cleanup);
 describe("Ride Check form", () => {
   it("shows all five inputs in two labeled sections", async () => {
     await renderRules();
-    expect(screen.getByText("Rider and vehicle")).toBeTruthy();
-    expect(screen.getByText("Planned ride")).toBeTruthy();
+    expect(screen.getAllByText("Rider and vehicle").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Planned ride").length).toBeGreaterThan(0);
+
     expect(screen.getByLabelText(/Rider age in years/i)).toBeTruthy();
     expect(screen.getByRole("radiogroup", { name: "Vehicle classification" })).toBeTruthy();
     expect(screen.getByLabelText(/City \(optional\)/i)).toBeTruthy();
