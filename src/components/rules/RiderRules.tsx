@@ -247,9 +247,11 @@ function RiderResultCard({
 
         <div className="border-t border-border px-5 py-5 sm:px-7">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            What this does not check
+            What this result does not decide
           </h3>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{NOT_CHECKED_NOTE}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            {getCoverageNote(localRules)}
+          </p>
         </div>
 
         <div className="border-t border-border px-5 py-5 sm:px-7">
