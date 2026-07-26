@@ -41,6 +41,20 @@ const CLASS_OPTIONS: { value: RiderClassSelection; label: string }[] = [
   { value: "needs-verification", label: "Not sure / Needs Verification" },
 ];
 
+/** Safety-education framing for the simulator action. Not a legal statement. */
+const STOPPING_ACTION_NOTE: Record<RiderClassSelection, string> = {
+  "class-1":
+    "20 mph is this class's maximum assisted speed, used only as a starting point for the simulator. Seeing a stopping distance does not make a ride legal.",
+  "class-2":
+    "20 mph is this class's maximum assisted speed, used only as a starting point for the simulator. Seeing a stopping distance does not make a ride legal.",
+  "class-3":
+    "28 mph is this class's maximum assisted speed, used only as a starting point for the simulator. Seeing a stopping distance does not make a ride legal, and it does not change the age result above.",
+  "needs-verification":
+    "The class is unverified, so no speed is assumed for this vehicle. The simulator still lets you explore how stopping distance grows with speed.",
+};
+
+
+
 const AGE_TONE = {
   permitted: "bg-ok-soft text-foreground",
   "not-permitted": "bg-alert-soft text-foreground",
