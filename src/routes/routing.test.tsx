@@ -136,8 +136,9 @@ describe("route map", () => {
   it("/rules, /stopping and /scenarios still work directly", async () => {
     await renderAt("/rules");
     expect(screen.getAllByRole("heading", { level: 1 })[0].textContent).toMatch(
-      /statewide rules apply/i,
+      /Can this rider ride here/i,
     );
+
     cleanup();
     await renderAt("/stopping");
     expect(screen.getAllByRole("heading", { level: 1 })[0].textContent).toMatch(/take to stop/i);
