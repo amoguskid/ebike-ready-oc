@@ -4,7 +4,7 @@ import { DecisionScenarios } from "@/components/scenarios/DecisionScenarios";
 
 const TITLE = "Decision Scenarios — Practice California E-Bike Rules";
 const DESCRIPTION =
-  "Five short e-bike scenarios covering California age, helmet, local sidewalk and park rules, plus stopping distance, each with its official source.";
+  "Six short e-bike scenarios covering California age, helmet, local sidewalk, park and Los Alamitos sidewalk rules, plus stopping distance, each with its official source.";
 
 export const Route = createFileRoute("/scenarios")({
   head: () => ({
@@ -32,7 +32,7 @@ function ScenariosPage() {
           What would you do in each situation?
         </h1>
         <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-          Answer five short scenarios and see the rule, the official source, and where to check the
+          Answer six short scenarios and see the rule, the official source, and where to check the
           details for a specific rider.
         </p>
       </header>
