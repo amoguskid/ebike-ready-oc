@@ -53,7 +53,7 @@ function StoppingPage() {
         </p>
       </header>
 
-      <StoppingSimulator />
+      <StoppingSimulator handoff={handoff} />
     </main>
   );
 }
