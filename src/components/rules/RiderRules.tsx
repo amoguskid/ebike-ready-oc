@@ -165,6 +165,12 @@ export function RiderRules({
               );
             })}
           </div>
+          {classCarriedOver ? (
+            <p className="mt-2.5 flex gap-2 rounded-lg bg-info-soft px-3 py-2 text-sm leading-relaxed">
+              <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              {CLASS_CARRIED_OVER_NOTE}
+            </p>
+          ) : null}
         </FieldShell>
 
         <FieldShell label="City (optional)" hint={CITY_SELECT_HELPER} htmlFor="rider-city">
