@@ -31,11 +31,12 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     to: "/rules",
-    label: "Rider Rules",
-    shortLabel: "Rules",
-    description: "Rider rules",
+    label: "Ride Check",
+    shortLabel: "Ride",
+    description: "Can I Ride Here? rider rules check",
     exact: false,
   },
+
   {
     to: "/stopping",
     label: "Stopping",
