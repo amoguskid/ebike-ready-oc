@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, Gauge, ShieldAlert } from "lucide-react";
+import { ChevronDown, Gauge, Info, ShieldAlert } from "lucide-react";
+import type { StoppingHandoff } from "@/lib/stoppingHandoff";
 import { cn } from "@/lib/utils";
 import {
   COMPARISON_EXPLANATION,
