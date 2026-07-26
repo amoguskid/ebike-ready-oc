@@ -314,6 +314,26 @@ function RiderResultCard({
 
       {localRules ? <LocalRulesCard localRules={localRules} /> : null}
 
+      {/* Next step: safety education only — never a statement about legality. */}
+      <div className="surface-card px-5 py-5 sm:px-7">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Next step
+        </h3>
+        <Link
+          to="/stopping"
+          search={toStoppingSearch(classSelection)}
+          className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <Timer className="size-4" aria-hidden="true" />
+          {stoppingActionLabel(classSelection)}
+        </Link>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          {STOPPING_ACTION_NOTE[classSelection]}
+        </p>
+      </div>
+
+
+
 
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
         <p>
