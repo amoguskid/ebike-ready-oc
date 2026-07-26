@@ -119,8 +119,10 @@ describe("route map", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: /Is your e-bike a Class 1, 2, or 3/i }),
     ).toBeTruthy();
-    const groups = screen.getAllByRole("group");
-    expect(groups.length).toBe(7);
+    const radioGroups = screen.getAllByRole("radiogroup");
+    const numberInputs = document.querySelectorAll('input[type="number"], input[inputmode]');
+    expect(radioGroups.length + numberInputs.length).toBe(7);
+
   });
 
   it("/rules, /stopping and /scenarios still work directly", async () => {
