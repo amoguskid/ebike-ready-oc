@@ -157,6 +157,14 @@ function ModuleNav() {
         >
           Rider Rules
         </Link>
+        <Link
+          to="/scenarios"
+          className={itemClass}
+          activeProps={{ className: "bg-primary text-primary-foreground" }}
+          inactiveProps={{ className: "text-muted-foreground hover:bg-muted" }}
+        >
+          Scenarios
+        </Link>
       </div>
     </nav>
   );
