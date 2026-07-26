@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import {
   RouterProvider,
   createMemoryHistory,
@@ -114,16 +114,23 @@ describe("route map", () => {
     expect(screen.getByText("Legal information last reviewed: July 2026")).toBeTruthy();
   });
 
-  it("/classify renders the unchanged seven-input Class Checker", async () => {
+  it("/classify renders the unchanged seven-input Class Checker across its three steps", async () => {
     await renderAt("/classify");
     expect(
       screen.getByRole("heading", { level: 1, name: /Is your e-bike a Class 1, 2, or 3/i }),
     ).toBeTruthy();
-    const radioGroups = screen.getAllByRole("radiogroup");
-    const numberInputs = document.querySelectorAll('input[type="number"], input[inputmode]');
-    expect(radioGroups.length + numberInputs.length).toBe(7);
 
+    let total = 0;
+    for (let step = 0; step < 3; step += 1) {
+      total +=
+        screen.getAllByRole("radiogroup").length +
+        document.querySelectorAll('input[type="number"], input[inputmode]').length;
+      const next = screen.queryByRole("button", { name: "Next" });
+      if (next) fireEvent.click(next);
+    }
+    expect(total).toBe(7);
   });
+
 
   it("/rules, /stopping and /scenarios still work directly", async () => {
     await renderAt("/rules");

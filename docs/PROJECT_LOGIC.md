@@ -40,6 +40,36 @@ working modules:
   All classifier→rules (`/rules?class=…`) and rules→stopping
   (`/stopping?speed=…&from=…`) handoffs are unchanged.
 
+### Design Polish Build 2 — the three-step Class Checker (presentation only)
+
+- `src/lib/classifierSteps.ts` holds the step map: `CLASSIFIER_STEPS`
+  (`basics` → Vehicle basics, `motor` → Motor behavior, `legal` → Legal
+  verification), `stepProgressText()`, `clampStepIndex()` and
+  `stepIndexForField()`. It is pure data plus helpers — no legal rules.
+- `ClassifierForm` keeps one extra piece of local UI state, `stepIndex`, and
+  renders only the questions belonging to the current step. All seven answers
+  live in the same single `VehicleInput` state object as before, so moving
+  Back/Next never discards an answer.
+- **This does not change classification logic.** `classifyVehicle()` is
+  untouched and still receives one complete `VehicleInput` with the same
+  normalization (`normalize()` maps blank/NaN/negative numeric entries to
+  `{ known: false }`). Splitting the questions across three screens cannot
+  change a status, explanation, warning, citation or handoff.
+- Submission only happens on Step 3: Back/Next are `type="button"`, the
+  "Check classification" button is the form's only `type="submit"` control and
+  the submit handler ignores submissions raised on an earlier step.
+- Accessibility: each step is a `<fieldset>` with a focusable `<legend>` that
+  receives focus on step change; the progress list marks the active step with
+  `aria-current="step"` plus a number/check icon and screen-reader text
+  ("current step" / "completed"), so progress never relies on color alone.
+- "Edit answers" unmounts the result and remounts the form at Step 1 with the
+  previous answers; "Start over" remounts it at Step 1 with `EMPTY_VEHICLE`.
+- Tests: `src/components/classifier/ClassifierForm.test.tsx` covers step
+  visibility, Next/Back navigation, answer persistence, submit-only-on-Step-3,
+  the five unchanged outcomes, Edit answers / Start over, and the
+  `/rules?class=…` handoff.
+
+
 No OCR, GPS, accounts, database or external API is used. Everything runs
 client-side from constants stored in the repository.
 
