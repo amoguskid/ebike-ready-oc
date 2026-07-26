@@ -41,6 +41,7 @@ export function RiderRules() {
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    // Always validate the CURRENT raw field value — never a previously valid age.
     const validation = validateAge(age);
     if (!validation.valid) {
       setError(validation.message);
@@ -49,6 +50,14 @@ export function RiderRules() {
     }
     setError(null);
     setResult(getStatewideRiderRules({ ageYears: validation.value, classSelection }));
+  }
+
+  function handleAgeChange(raw: string) {
+    setAge(raw);
+    // Any edit invalidates the previous result so stale guidance is never shown.
+    setResult(null);
+    const validation = validateAge(raw);
+    setError(validation.valid ? null : error ? validation.message : null);
   }
 
   if (result) {
