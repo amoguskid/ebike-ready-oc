@@ -196,7 +196,15 @@ export function RiderRules() {
   );
 }
 
-function RiderResultCard({ result, onEdit }: { result: RiderRulesResult; onEdit: () => void }) {
+function RiderResultCard({
+  result,
+  localRules,
+  onEdit,
+}: {
+  result: RiderRulesResult;
+  localRules: LocalRulesResult | null;
+  onEdit: () => void;
+}) {
   return (
     <section aria-live="polite" className="space-y-4">
       <div className="surface-card overflow-hidden">
