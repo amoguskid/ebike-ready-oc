@@ -43,7 +43,7 @@ function RulesPage() {
         </p>
       </header>
 
-      <RiderRules />
+      <RiderRules carriedOverClass={carriedOverClass} />
     </main>
   );
 }
