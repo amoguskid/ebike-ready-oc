@@ -8,19 +8,41 @@ file names, functions, constants and behaviors below were read from the source.
 ## 1. Purpose and modules
 
 E-Bike Ready OC is a mobile-first React + TypeScript educational prototype about
-electric-bicycle law and safety in California. It has four working modules:
+electric-bicycle law and safety in California. It has a Home page and four
+working modules:
 
-| Module | Route | Purpose |
+| Page / Module | Route | Purpose |
 | --- | --- | --- |
-| **Class Checker** (default) | `/` (`src/routes/index.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
+| **Home** | `/` (`src/routes/index.tsx`) | Landing page: hero, four feature cards linking to the modules, trust statement and legal review date. No legal logic. |
+| **Class Checker** | `/classify` (`src/routes/classify.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
 | **Decision Scenarios** | `/scenarios` (`src/routes/scenarios.tsx`) | A five-question learning activity that restates rules and estimates already verified in the other modules. No new legal rules. |
 | **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for four verified Orange County cities (Anaheim, Cypress, Garden Grove, Stanton). A city selection never changes the statewide result. |
 
-Navigation between the four lives in the root layout, `src/routes/__root.tsx`.
+### Branding shell and navigation (Design Polish Build 1)
+
+- `src/lib/navigation.ts` — pure data: `NAV_ITEMS` (Home, Classify, Rider Rules,
+  Stopping, Scenarios), `BRAND_NAME`, `BRAND_DESCRIPTOR`, `CLASS_CHECKER_PATH`
+  (`/classify`, the single source of truth for in-app "verify the class" links).
+- `src/components/layout/SiteNav.tsx` — `SiteHeader` (brand mark linking to `/`,
+  brand name, descriptor, desktop/tablet nav) and `MobileNav` (fixed bottom bar
+  with five short labels and Lucide icons, hidden at `md` and above). Active
+  items carry `aria-current="page"` plus an underline, so state is not conveyed
+  by color alone. No hamburger menu.
+- `src/routes/__root.tsx` — renders the skip link ("Skip to main content"),
+  `SiteHeader`, `<Outlet />` and `MobileNav` for every page.
+- Layout: header and Home use a `max-w-4xl` (56rem) container; module pages stay
+  single-column at `max-w-2xl` so forms and explanatory text keep a readable line
+  length. Every `<main>` uses `id="main-content"` and `pb-28 md:pb-16` so the
+  fixed mobile bar never covers buttons, citations or result text.
+- The Class Checker UI moved from `/` to `/classify` unchanged — the same
+  `ClassifierForm`, `ResultCard` and `classifyVehicle()` logic, no duplication.
+  All classifier→rules (`/rules?class=…`) and rules→stopping
+  (`/stopping?speed=…&from=…`) handoffs are unchanged.
 
 No OCR, GPS, accounts, database or external API is used. Everything runs
 client-side from constants stored in the repository.
+
 
 ---
 
