@@ -39,11 +39,12 @@ const FEATURES: FeatureCard[] = [
   },
   {
     icon: ShieldCheck,
-    title: "Check rider rules",
-    body: "Combine age, e-bike class and verified city coverage to see helmet, eligibility and local riding restrictions.",
-    linkLabel: "Check rider rules",
+    title: "Can I ride here?",
+    body: "Combine rider age, vehicle class, city, planned riding location and helmet status to check the verified statewide and local rules in this app.",
+    linkLabel: "Check this ride",
     to: "/rules",
   },
+
   {
     icon: Timer,
     title: "Explore stopping distance",

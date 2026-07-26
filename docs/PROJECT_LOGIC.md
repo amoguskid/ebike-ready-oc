@@ -457,6 +457,63 @@ single credit, progress advance and clamping, completion, score totals, the
 
 ---
 
+## 7d. "Can I Ride Here?" integrated decision engine (Ride Check, `/rules`)
+
+**Files**
+
+| File | Role |
+| --- | --- |
+| `src/types/rideDecision.ts` | Types for locations, helmet answers, trace rows and the composed decision. |
+| `src/data/rideLocations.ts` | Location/helmet options, helper text, and the location resolution table derived only from the already-verified city data. |
+| `src/lib/evaluateRideDecision.ts` | Pure composition. Calls `getStatewideRiderRules()` and `getLocalCityRules()`; contains no independent legal logic. |
+| `src/components/rules/RiderRules.tsx` | Two-section form (Rider and vehicle / Planned ride), verdict card, decision trace, "What to check next". |
+
+**Inputs:** rider age, class, city (optional), planned location (required:
+street, bike lane, sidewalk, park or recreational trail, school campus) and
+helmet status (Yes / No / Not sure, default Not sure).
+
+**Composition.** Each dimension resolves to `resolved-ok`, `blocked` or
+`unresolved`:
+
+- Age and class — from `getStatewideRiderRules().ageStatus`.
+- Helmet — `helmetStatus` combined with the rider's helmet answer.
+- Location — the city/location/class entry in `CITY_LOCATION_RULES`, which is
+  populated **only** where the existing verified city bullets explicitly answer
+  the location.
+
+**Precedence**
+
+1. `do-not-ride` — any verified rule makes the ride noncompliant (statewide age
+   prohibition, helmet legally required with Helmet = No, or an explicit local
+   prohibition such as Anaheim/Stanton parks or Anaheim sidewalks for Class 3).
+2. `verify` — no prohibition but a necessary fact is open: Needs Verification
+   class, helmet Not sure where required, Statewide only selected, the
+   combination is not covered by the verified data, or the verified rule itself
+   says signs / designated areas / facility rules must be checked.
+3. `likely-permitted` — all three dimensions resolved and none prohibits.
+
+A red conclusion always overrides amber uncertainty. The engine never emits an
+unconditional "legal" verdict, and every returned source is an existing object
+from `RIDER_RULE_SOURCES` or a city's verified `sources` array.
+
+**Conservative unknown behavior.** Silence in the data is never read as
+permission. School campuses, Cypress/Garden Grove streets, sidewalks and bike
+lanes, and every uncovered pairing return "Verify before riding" with an
+explicit item in "What to check next".
+
+**Presentation.** The verdict card is first (green check / red stop / amber
+alert, always with text as well as color), then the trace with Age and class,
+Helmet and Planned location rows and their sources, then "What to check next",
+then the unchanged statewide and local rule sections and the unchanged stopping
+handoff. Edit answers preserves inputs; Start over resets to the defaults with
+no location and Helmet = Not sure.
+
+**Tests.** `src/lib/evaluateRideDecision.test.ts` (decision table, 22 cases) and
+`src/components/rules/RiderRules.test.tsx` (13 UI cases).
+
+---
+
+
 ## 8. Limitations
 
 **Legal**

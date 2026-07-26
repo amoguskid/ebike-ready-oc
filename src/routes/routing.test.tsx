@@ -88,7 +88,7 @@ describe("route map", () => {
     await renderAt("/");
     for (const title of [
       "Classify a vehicle",
-      "Check rider rules",
+      "Can I ride here?",
       "Explore stopping distance",
       "Practice real situations",
     ]) {
@@ -97,9 +97,10 @@ describe("route map", () => {
     expect(screen.getByRole("link", { name: "Start classification" }).getAttribute("href")).toBe(
       "/classify",
     );
-    expect(screen.getByRole("link", { name: "Check rider rules" }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: "Check this ride" }).getAttribute("href")).toBe(
       "/rules",
     );
+
     expect(screen.getByRole("link", { name: "Open simulator" }).getAttribute("href")).toBe(
       "/stopping",
     );
@@ -135,8 +136,9 @@ describe("route map", () => {
   it("/rules, /stopping and /scenarios still work directly", async () => {
     await renderAt("/rules");
     expect(screen.getAllByRole("heading", { level: 1 })[0].textContent).toMatch(
-      /statewide rules apply/i,
+      /Can this rider ride here/i,
     );
+
     cleanup();
     await renderAt("/stopping");
     expect(screen.getAllByRole("heading", { level: 1 })[0].textContent).toMatch(/take to stop/i);
