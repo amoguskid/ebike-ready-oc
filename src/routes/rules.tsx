@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { RiderRules } from "@/components/rules/RiderRules";
+import { parseRulesClassParam } from "@/lib/classHandoff";
 
 const TITLE = "Rider Rules — California Statewide Age & Helmet Check";
 const DESCRIPTION =
   "Enter a rider's age and e-bike class to see California's statewide age and helmet requirements, with links to the official Vehicle Code sections.";
 
 export const Route = createFileRoute("/rules")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    class: typeof search.class === "string" ? search.class : undefined,
+  }),
   head: () => ({
     meta: [
       { title: TITLE },
