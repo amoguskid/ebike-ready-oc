@@ -54,7 +54,13 @@ client-side from constants stored in the repository.
   functions `mphToMetersPerSecond`, `metersToFeet`, `computeStoppingDistance`,
   `roundFeet`, `getRoadCondition`, `describeStoppingDistance`.
 - `src/lib/stoppingDistance.test.ts` — 5 vitest cases.
-- UI: `src/components/stopping/StoppingSimulator.tsx` (`StoppingSimulator`).
+- `src/lib/stoppingHandoff.ts` — pure Rider Rules → simulator mapping and
+  validated query parsing (`classStartingSpeedMph`, `stoppingActionLabel`,
+  `toStoppingSearch`, `parseStoppingHandoff`). No physics, no legal logic.
+- `src/lib/stoppingHandoff.test.ts` — 14 vitest cases.
+- UI: `src/components/stopping/StoppingSimulator.tsx` (`StoppingSimulator`,
+  optional `handoff` prop), route `src/routes/stopping.tsx` (`validateSearch`
+  for `?speed=` and `?from=`).
 
 ### Rider Rules
 - `src/types/riderRules.ts` — types only: `RiderClassSelection`
@@ -315,6 +321,14 @@ speedometer yes, not advertised as modifiable.
     the validation message — the last valid age is never reused.
 
 
+### `src/lib/stoppingHandoff.test.ts` (14 cases)
+Class 1/2 → 20 mph, Class 3 → 28 mph, each with its exact carry-over note;
+Needs Verification opens the simulator with no assumed speed; missing,
+malformed, unsupported and inconsistent params all fall back to the 20 mph
+default with no note; a speed without a class (and vice versa) is not a
+handoff; carried speeds reproduce the existing physics results; an under-16
+Class 3 rider is still "Not permitted" yet still gets the simulator action.
+
 ### `src/lib/stoppingDistance.test.ts` (5 cases)
 Dry pavement (μ = 0.70), 1.5 s reaction time unless noted:
 
@@ -323,6 +337,36 @@ Dry pavement (μ = 0.70), 1.5 s reaction time unless noted:
 3. 40 mph → ≈ 164 ft (±1 ft).
 4. Total equals reaction + braking (25 mph, 1.2 s, wet).
 5. Lower friction produces a longer stop (gravel > wet at 20 mph).
+
+---
+
+## 7b. Rider Rules → Stopping Simulator handoff
+
+After a valid Rider Rules result, one next-step action links to `/stopping`:
+
+| Class selection | Button label | Search params |
+| --- | --- | --- |
+| Class 1 | "See stopping distance at 20 mph" | `?speed=20&from=class-1` |
+| Class 2 | "See stopping distance at 20 mph" | `?speed=20&from=class-2` |
+| Class 3 | "See stopping distance at 28 mph" | `?speed=28&from=class-3` |
+| Not sure / Needs Verification | "Explore stopping distances" | none |
+
+`/stopping` validates both params with `parseStoppingHandoff`. A handoff is
+accepted only when the class is recognised, the speed parses as a whole number
+inside `SPEED_RANGE_MPH`, and the speed matches the class it claims to come
+from. A valid handoff initialises the speed slider (so the 20 or 28 mph
+quick-select button reads as selected) and renders a short note near the speed
+control; every calculation, comparison, chart and aria label is derived from
+that speed by the unchanged formula. Anything missing, malformed, unsupported
+or inconsistent falls back to the simulator's own 20 mph default with no note.
+Direct visits to `/stopping` are unchanged. Handoff state lives only in the
+URL, so editing answers or revisiting a module never retains a stale carry-over.
+
+**The 20 / 28 mph values are class maximum-assistance speeds used only as
+educational simulator starting points.** They are not a legal speed limit for
+any rider, road, path or city, and the action never implies that viewing a
+stopping distance makes a ride legal — it is shown even when the statewide age
+result is "Not permitted".
 
 ---
 
