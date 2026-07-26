@@ -30,7 +30,7 @@ function Index() {
   const [result, setResult] = useState<ClassificationResult | null>(null);
 
   return (
-    <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
+    <main className="mx-auto w-full max-w-xl px-4 pb-16 pt-2 sm:px-6">
       <header className="mb-7">
         <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
           <Bike className="size-3.5" aria-hidden="true" />
