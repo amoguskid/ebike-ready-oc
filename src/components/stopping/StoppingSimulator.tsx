@@ -28,8 +28,13 @@ const SPEED_TONE: Record<number, { bar: string; badge: string }> = {
   40: { bar: "bg-alert", badge: "bg-alert-soft text-alert" },
 };
 
-export function StoppingSimulator() {
-  const [speedMph, setSpeedMph] = useState<number>(SPEED_RANGE_MPH.default);
+export function StoppingSimulator({
+  handoff = null,
+}: {
+  /** Validated Rider Rules handoff; null means "behave exactly as before". */
+  handoff?: StoppingHandoff | null;
+} = {}) {
+  const [speedMph, setSpeedMph] = useState<number>(handoff?.speedMph ?? SPEED_RANGE_MPH.default);
   const [reactionSeconds, setReactionSeconds] = useState<number>(REACTION_RANGE_SECONDS.default);
   const [conditionId, setConditionId] = useState<RoadConditionId>("dry");
 
