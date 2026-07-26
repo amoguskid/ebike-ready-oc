@@ -38,7 +38,7 @@ client-side from constants stored in the repository.
   helpers `isYes`, `isNo`, `isUnsure`, `known`, `triLabel`, `numLabel`,
   `specList`, `build`. It reads thresholds only from `CA_RULES` and never
   hard-codes a number.
-- `src/lib/classifyVehicle.test.ts` — 13 vitest cases.
+- `src/lib/classifyVehicle.test.ts` — 15 vitest cases.
 - UI: `src/components/classifier/ClassifierForm.tsx` (`EMPTY_VEHICLE`,
   `normalize`, `ClassifierForm`), `src/components/classifier/fields.tsx`
   (`FieldShell`, `TriStateField`, `NumericField`),
@@ -92,8 +92,9 @@ Rules are evaluated top to bottom; the first match returns.
   § 312.5(d)(1): a vehicle the manufacturer intends to be modifiable past
   20 mph on motor power alone or past 750 W is excluded outright.
 - **Rule 1 — no operable pedals.** If `hasOperablePedals === "no"` →
-  **not-an-ebike**, plus a warning that bike paths, lanes and sidewalks are
-  generally not allowed.
+  **not-an-ebike**. The explanation says the correct legal category depends on
+  additional specifications and directs the user to the California DMV or CHP.
+  No blanket bike-path / bike-lane / sidewalk prohibition is stated.
 - **Rule 2 — over the power ceiling.** If `motorWatts` is known and
   `> 750` → **not-an-ebike**.
 - **Rule 3 — pedal assist over the Class 3 ceiling.** If
@@ -113,8 +114,12 @@ Rules are evaluated top to bottom; the first match returns.
     the cut-off may change the outcome.
 - **Rule 7 — pedal assist only, assist ≤ 20 mph** → **class-1**.
 - **Rule 8 — Class 3 speedometer gate.** Pedal assist only with assist between
-  21 and 28 mph: if `hasSpeedometer` is not "yes" → **needs-verification**
-  (speeds match Class 3 but a speedometer is required).
+  21 and 28 mph:
+  - `hasSpeedometer === "unsure"` → **needs-verification** (confirm whether a
+    speedometer is fitted);
+  - `hasSpeedometer === "no"` → **not-an-ebike**, citing CVC § 312.5(a)(3),
+    which requires a Class 3 e-bike to be equipped with a speedometer, plus the
+    general unclassified-vehicle note pointing to the DMV or CHP.
 - **Otherwise** → **class-3**.
 
 ### Result assembly (`build`)
@@ -177,8 +182,11 @@ speedometer yes, not advertised as modifiable.
 1. Pedal-assist only, 250 W, 20 mph → `class-1`.
 2. Throttle, 750 W, throttle 20 mph, assist 20 mph → `class-2`.
 3. Pedal-assist only, 28 mph, speedometer → `class-3`.
-4. Same as 3 without a speedometer → `needs-verification`.
+4. Same as 3 but unsure about the speedometer → `needs-verification`.
+4b. Same as 3 without a speedometer → `not-an-ebike`, explanation contains "312.5(a)(3)".
 5. No operable pedals → `not-an-ebike`.
+5b. No-operable-pedals result contains no blanket bike-path / bike-lane /
+   sidewalk prohibition.
 6. 1500 W motor → `not-an-ebike`.
 7. Throttle to 32 mph → `not-an-ebike`.
 8. Unknown wattage → `needs-verification`, explanation contains "motor wattage".
@@ -231,7 +239,7 @@ From `CA_SOURCES` in `src/data/californiaRules.ts` (shown on every result):
 
 1. **California Vehicle Code § 312.5** — definition of an electric bicycle and the three classes.
    https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=312.5
-2. **California Vehicle Code § 21213 – 21213.5** — e-bike operation, helmet and age rules.
+2. **California Vehicle Code § 21213** — e-bike operation, helmet and age rules.
    https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=21213
 3. **California Vehicle Code § 406** — motorized bicycle / moped definition (when a vehicle is not an e-bike).
    https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=406
