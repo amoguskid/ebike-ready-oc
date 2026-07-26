@@ -149,6 +149,14 @@ function ModuleNav() {
         >
           Stopping Simulator
         </Link>
+        <Link
+          to="/rules"
+          className={itemClass}
+          activeProps={{ className: "bg-primary text-primary-foreground" }}
+          inactiveProps={{ className: "text-muted-foreground hover:bg-muted" }}
+        >
+          Rider Rules
+        </Link>
       </div>
     </nav>
   );

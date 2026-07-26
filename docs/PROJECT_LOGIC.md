@@ -8,14 +8,15 @@ file names, functions, constants and behaviors below were read from the source.
 ## 1. Purpose and modules
 
 E-Bike Ready OC is a mobile-first React + TypeScript educational prototype about
-electric-bicycle law and safety in California. It has two working modules:
+electric-bicycle law and safety in California. It has three working modules:
 
 | Module | Route | Purpose |
 | --- | --- | --- |
 | **Class Checker** (default) | `/` (`src/routes/index.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
+| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result. Statewide only — no city or local data. |
 
-Navigation between the two lives in the root layout, `src/routes/__root.tsx`.
+Navigation between the three lives in the root layout, `src/routes/__root.tsx`.
 
 No OCR, GPS, accounts, database or external API is used. Everything runs
 client-side from constants stored in the repository.
@@ -54,6 +55,55 @@ client-side from constants stored in the repository.
   `roundFeet`, `getRoadCondition`, `describeStoppingDistance`.
 - `src/lib/stoppingDistance.test.ts` — 5 vitest cases.
 - UI: `src/components/stopping/StoppingSimulator.tsx` (`StoppingSimulator`).
+
+### Rider Rules
+- `src/types/riderRules.ts` — types only: `RiderClassSelection`
+  (`"class-1" | "class-2" | "class-3" | "needs-verification"`), `RiderInput`,
+  `AgeStatus` (`"permitted" | "not-permitted" | "needs-class-verification"`),
+  `HelmetStatus` (`"required" | "not-required-statewide" | "depends-on-class"`),
+  `RiderRulesResult`, `AgeValidation`.
+- `src/data/riderRules.ts` — every constant and legal string: `RIDER_RULES`
+  (`HELMET_UNDER_AGE` 18, `CLASS_3_MIN_AGE` 16, `MIN_AGE` 1, `MAX_AGE` 120),
+  `AGE_VALIDATION_MESSAGES`, `NOT_CHECKED_NOTE`, `LEGAL_EBIKE_ASSUMPTION`,
+  `UNVERIFIED_CLASS_ASSUMPTION`, `RIDER_RULE_SOURCES`.
+- `src/lib/getStatewideRiderRules.ts` — pure logic:
+  `validateAge(raw: string): AgeValidation`, `isValidAge(age: number)`, and
+  `getStatewideRiderRules(input: RiderInput): RiderRulesResult | null`
+  (returns `null` for any invalid age, so invalid input produces no result).
+- `src/lib/getStatewideRiderRules.test.ts` — 14 vitest cases.
+- UI: `src/components/rules/RiderRules.tsx` (`RiderRules`, `RiderResultCard`).
+  It reuses `FieldShell` from the classifier and the shared design tokens.
+
+**Inputs:** rider age in years (required whole number, 1–120, with validation
+messages for blank, decimal, zero, negative and over-120 values) and vehicle
+classification (Class 1 / Class 2 / Class 3 / Not sure–Needs Verification).
+Submit button: "Check rider rules."
+
+**Decision table (statewide only):**
+
+| Class | Age | Statewide age status | Helmet status |
+| --- | --- | --- | --- |
+| Class 1 or 2 | under 18 | Permitted (no statewide minimum age) | Required (CVC §21212) |
+| Class 1 or 2 | 18 or older | Permitted (no statewide minimum age) | Not required statewide, strongly recommended |
+| Class 3 | under 16 | Not permitted (CVC §21213) | Required at every age |
+| Class 3 | 16 or older | Permitted | Required at every age |
+| Not sure | under 18 | Needs class verification | Required (any bicycle/e-bike under 18); note that Class 3 requires age 16+ |
+| Not sure | 18 or older | Needs class verification | Depends on class (Class 3 always; no statewide helmet rule for an adult on a legal Class 1/2) |
+
+For "Not sure", the result never gives a definitive permission answer and shows
+a link back to the Class Checker.
+
+**Result card sections:** statewide age status, helmet status, plain-language
+explanation and notes, "What this does not check" (local sidewalk, trail, park,
+school-campus and city restrictions), the CVC §312.5 legality assumption (or the
+unverified-class variant), official sources, the shared `DISCLAIMER` and
+`LEGAL_REVIEW_DATE`.
+
+**Official sources (all three shown on every result):** CVC §21212 (under-18
+helmet), CVC §21213 (Class 3 minimum age 16 and helmet at every age), and
+CVC §312.5 (class definitions), each linking to leginfo.legislature.ca.gov.
+No city rules are invented or inferred, and the module never states that a
+rider is "legal to ride" — only the statewide age and helmet result.
 
 Physics and legal math are kept out of component files; components only call
 these library functions.
@@ -195,6 +245,23 @@ speedometer yes, not advertised as modifiable.
 11. Manufacturer advertises an unlock → `not-an-ebike`, explanation contains "312.5(d)(1)".
 12. (Case 11b) Unsure about the unlock → `needs-verification`.
 13. (Case 12) Every result has exactly 7 triggering specs and at least one source.
+
+### `src/lib/getStatewideRiderRules.test.ts` (14 cases)
+1. Age 15 + Class 1 → permitted, helmet required.
+2. Age 15 + Class 2 → permitted, helmet required.
+3. Age 15 + Class 3 → not permitted, helmet required.
+4. Age 16 + Class 3 → permitted, helmet required.
+5. Age 17 + Class 1 → permitted, helmet required.
+6. Age 18 + Class 1 → permitted, helmet not required statewide.
+7. Age 18 + Class 2 → permitted, helmet not required statewide.
+8. Age 18 + Class 3 → permitted, helmet required.
+9. Under 18 + Needs Verification → needs class verification, helmet required,
+   note mentions the Class 3 minimum age of 16.
+10. Adult + Needs Verification → needs class verification, helmet depends on class.
+11. Invalid ages (0, -5, 12.5, 121, NaN) return `null` — no result.
+12. Every result carries the three official leginfo sources.
+13. `validateAge` rejects blank, decimal, zero, negative and over-120 input.
+14. `validateAge` accepts a whole number in range; `isValidAge(120)` is true.
 
 ### `src/lib/stoppingDistance.test.ts` (5 cases)
 Dry pavement (μ = 0.70), 1.5 s reaction time unless noted:
