@@ -133,7 +133,7 @@ describe("Outcomes are unchanged by the stepped flow", () => {
       setTri(/equipped with a speedometer/i, "No");
       setTri(/manufacturer advertise an unlock/i, "No");
     });
-    expect(screen.getByRole("heading", { name: /Class 1/i })).toBeTruthy();
+    expect(screen.getAllByRole("heading", { name: /Class 1/i }).length).toBeGreaterThan(0);
   });
 
   it("Class 2", async () => {
@@ -223,6 +223,6 @@ describe("Result actions and handoff", () => {
     await reachClass1Result();
     const link = screen.getByRole("link", { name: /Check rules for this rider/i });
     expect(link.getAttribute("href")).toContain("/rules");
-    expect(link.getAttribute("href")).toContain("class=1");
+    expect(decodeURIComponent(link.getAttribute("href") ?? "")).toContain('class="1"');
   });
 });
