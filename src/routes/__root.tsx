@@ -125,11 +125,41 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function ModuleNav() {
+  const itemClass =
+    "flex-1 rounded-lg px-3 py-2 text-center text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
+  return (
+    <nav aria-label="Modules" className="mx-auto w-full max-w-xl px-4 pt-6 sm:px-6 sm:pt-8">
+      <div className="flex gap-1 rounded-xl border border-border bg-card p-1 shadow-card">
+        <Link
+          to="/"
+          className={itemClass}
+          activeOptions={{ exact: true }}
+          activeProps={{ className: "bg-primary text-primary-foreground" }}
+          inactiveProps={{ className: "text-muted-foreground hover:bg-muted" }}
+        >
+          Class Checker
+        </Link>
+        <Link
+          to="/stopping"
+          className={itemClass}
+          activeProps={{ className: "bg-primary text-primary-foreground" }}
+          inactiveProps={{ className: "text-muted-foreground hover:bg-muted" }}
+        >
+          Stopping Simulator
+        </Link>
+      </div>
+    </nav>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ModuleNav />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
