@@ -6,11 +6,12 @@
  * No new legal rules or cities are introduced here.
  */
 
+import { buildLosAlamitosScenario } from "@/data/losAlamitosScenario";
 import type { Scenario } from "@/types/scenarios";
 
 /** Shown once above the activity. */
 export const SCENARIOS_INTRO =
-  "Five short situations based on the rules and estimates already in this app. Choose an answer to see the result and the official source.";
+  "Six short situations based on the rules and estimates already in this app. Choose an answer to see the result and the official source.";
 
 /** Shown with every result to keep education separate from legal advice. */
 export const SCENARIOS_DISCLAIMER =
@@ -139,4 +140,8 @@ export const SCENARIOS: readonly Scenario[] = [
       search: { speed: "28", from: "class-3" },
     },
   },
-] as const;
+
+  // Generated from the shared rules engine — no rule prose or status logic is
+  // duplicated here. See src/data/losAlamitosScenario.ts.
+  buildLosAlamitosScenario(),
+];
