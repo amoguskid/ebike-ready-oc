@@ -230,17 +230,28 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
     );
   }
 
-  /* RULE 8 — Pedal-assist only, stops by 28 mph => Class 3 (speedometer required). */
-  if (CA_RULES.CLASS_3_REQUIRES_SPEEDOMETER && !isYes(input.hasSpeedometer)) {
+  /* RULE 8 — Pedal-assist only, stops by 28 mph => Class 3 (speedometer required).
+     Speedometer "unsure" => Needs Verification. Speedometer "no" => not an e-bike. */
+  if (CA_RULES.CLASS_3_REQUIRES_SPEEDOMETER && isUnsure(input.hasSpeedometer)) {
     return build(
       "needs-verification",
       "Needs Verification",
-      `The speeds and power match a Class 3 electric bicycle (pedal assist up to ${assist} mph), but California requires a Class 3 e-bike to be equipped with a speedometer and you answered "${triLabel(input.hasSpeedometer)}". Confirm whether a speedometer is fitted.`,
+      `The speeds and power match a Class 3 electric bicycle (pedal assist up to ${assist} mph), but California requires a Class 3 e-bike to be equipped with a speedometer and you answered "Unsure". Confirm whether a speedometer is fitted.`,
       [
         ...warnings,
-        "Without a speedometer this vehicle does not meet the Class 3 requirements as entered.",
+        "Without a confirmed speedometer this vehicle cannot be treated as a Class 3 electric bicycle.",
         "A display that shows current speed usually counts — check the manual to be sure.",
       ],
+      input,
+    );
+  }
+
+  if (CA_RULES.CLASS_3_REQUIRES_SPEEDOMETER && isNo(input.hasSpeedometer)) {
+    return build(
+      "not-an-ebike",
+      "Does Not Meet California E-Bike Definition",
+      "This vehicle's speed and pedal-assist behavior otherwise match Class 3, but California Vehicle Code §312.5(a)(3) requires a Class 3 electric bicycle to be equipped with a speedometer. As currently equipped, this vehicle does not meet the Class 3 definition.",
+      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
     );
   }
