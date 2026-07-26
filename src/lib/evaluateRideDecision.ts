@@ -231,7 +231,7 @@ export function evaluateRideDecision(input: RideDecisionInput): RideDecision | n
     reasons: rows
       .filter((row) => (overallStatus === "do-not-ride" ? row.status === "blocked" : true))
       .map((row) => row.reason),
-    unresolvedChecks: overallStatus === "do-not-ride" ? unresolvedChecks : unresolvedChecks,
+    unresolvedChecks,
     sources: dedupe(rows.flatMap((row) => row.sources)),
   };
 }
