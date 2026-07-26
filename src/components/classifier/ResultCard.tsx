@@ -1,5 +1,15 @@
-import { AlertTriangle, ArrowLeft, BadgeCheck, ExternalLink, HelpCircle, Info } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  ExternalLink,
+  HelpCircle,
+  Info,
+} from "lucide-react";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
+import { toRulesClassParam } from "@/lib/classHandoff";
 import { cn } from "@/lib/utils";
 import type { ClassificationCode, ClassificationResult } from "@/types/vehicle";
 

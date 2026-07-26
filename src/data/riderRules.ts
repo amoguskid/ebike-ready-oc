@@ -49,6 +49,10 @@ export function notCheckedNoteWithCity(cityName: string): string {
 export const NOT_CHECKED_NOTE = NOT_CHECKED_NOTE_STATEWIDE_ONLY;
 
 
+/** Shown when the vehicle class arrived from the Class Checker handoff. */
+export const CLASS_CARRIED_OVER_NOTE =
+  "Vehicle class carried over from the Class Checker. You can change it if needed.";
+
 /** Assumption notice shown on every result. */
 export const LEGAL_EBIKE_ASSUMPTION =
   "This result assumes the vehicle is a legal Class 1, 2, or 3 e-bike under CVC §312.5.";
