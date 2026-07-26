@@ -1,8 +1,16 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  RouterProvider,
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+} from "@tanstack/react-router";
 import { ClassifierForm } from "@/components/classifier/ClassifierForm";
-import { ClassifyPageBody } from "@/routes/classify";
+import { Route as ClassifyRoute } from "@/routes/classify";
 import { CLASSIFIER_STEPS, stepProgressText } from "@/lib/classifierSteps";
 
 /**
@@ -88,9 +96,28 @@ describe("Class Checker step flow", () => {
   });
 });
 
-/** Walks the stepped form and submits, returning the rendered result title. */
+/** Renders the real /classify route inside a memory router. */
+function renderClassifyRoute() {
+  const rootRoute = createRootRoute({ component: () => <Outlet /> });
+  const routeTree = rootRoute.addChildren([
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/classify",
+      ...(ClassifyRoute as never as { options: Record<string, unknown> }).options,
+    } as never),
+  ]);
+  const router = createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: ["/classify"] }),
+  });
+  act(() => {
+    render(<RouterProvider router={router as never} />);
+  });
+}
+
+/** Walks the stepped form and submits. */
 function runFlow(fill: () => void) {
-  render(<ClassifyPageBody />);
+  renderClassifyRoute();
   fill();
   fireEvent.click(screen.getByRole("button", { name: "Check classification" }));
 }
