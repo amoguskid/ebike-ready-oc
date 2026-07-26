@@ -1,16 +1,33 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ArrowLeft, ExternalLink, HardHat, Info, UserCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ExternalLink,
+  HardHat,
+  Info,
+  MapPin,
+  UserCheck,
+} from "lucide-react";
 import { FieldShell } from "@/components/classifier/fields";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
+import {
+  CITY_OPTIONS,
+  CITY_SELECT_HELPER,
+  LOCAL_RULES_CHANGE_NOTE,
+  LOCAL_VS_CLASS_NOTE,
+} from "@/data/cityRules";
 import {
   LEGAL_EBIKE_ASSUMPTION,
   NOT_CHECKED_NOTE,
   UNVERIFIED_CLASS_ASSUMPTION,
 } from "@/data/riderRules";
+import { getLocalCityRules } from "@/lib/getLocalCityRules";
 import { getStatewideRiderRules, validateAge } from "@/lib/getStatewideRiderRules";
 import { cn } from "@/lib/utils";
+import type { CityId, LocalRulesResult } from "@/types/cityRules";
 import type { RiderClassSelection, RiderRulesResult } from "@/types/riderRules";
+
 
 /** Presentation only — all statewide rule logic lives in getStatewideRiderRules.ts. */
 
