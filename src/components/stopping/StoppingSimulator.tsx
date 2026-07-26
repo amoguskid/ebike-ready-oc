@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, Gauge, ShieldAlert } from "lucide-react";
+import { ChevronDown, Gauge, Info, ShieldAlert } from "lucide-react";
+import type { StoppingHandoff } from "@/lib/stoppingHandoff";
 import { cn } from "@/lib/utils";
 import {
   COMPARISON_EXPLANATION,
@@ -27,8 +28,13 @@ const SPEED_TONE: Record<number, { bar: string; badge: string }> = {
   40: { bar: "bg-alert", badge: "bg-alert-soft text-alert" },
 };
 
-export function StoppingSimulator() {
-  const [speedMph, setSpeedMph] = useState<number>(SPEED_RANGE_MPH.default);
+export function StoppingSimulator({
+  handoff = null,
+}: {
+  /** Validated Rider Rules handoff; null means "behave exactly as before". */
+  handoff?: StoppingHandoff | null;
+} = {}) {
+  const [speedMph, setSpeedMph] = useState<number>(handoff?.speedMph ?? SPEED_RANGE_MPH.default);
   const [reactionSeconds, setReactionSeconds] = useState<number>(REACTION_RANGE_SECONDS.default);
   const [conditionId, setConditionId] = useState<RoadConditionId>("dry");
 
@@ -97,7 +103,14 @@ export function StoppingSimulator() {
               </button>
             ))}
           </div>
+          {handoff ? (
+            <p className="mt-3 flex gap-2 rounded-lg bg-info-soft px-3 py-2 text-sm leading-relaxed">
+              <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              {handoff.note}
+            </p>
+          ) : null}
         </div>
+
 
         <div className="mt-7 border-t border-border pt-6">
           <div className="flex items-end justify-between gap-3">

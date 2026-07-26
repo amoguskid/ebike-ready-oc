@@ -7,8 +7,10 @@ import {
   HardHat,
   Info,
   MapPin,
+  Timer,
   UserCheck,
 } from "lucide-react";
+import { stoppingActionLabel, toStoppingSearch } from "@/lib/stoppingHandoff";
 import { FieldShell } from "@/components/classifier/fields";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
 import {
@@ -38,6 +40,20 @@ const CLASS_OPTIONS: { value: RiderClassSelection; label: string }[] = [
   { value: "class-3", label: "Class 3" },
   { value: "needs-verification", label: "Not sure / Needs Verification" },
 ];
+
+/** Safety-education framing for the simulator action. Not a legal statement. */
+const STOPPING_ACTION_NOTE: Record<RiderClassSelection, string> = {
+  "class-1":
+    "20 mph is this class's maximum assisted speed, used only as a starting point for the simulator. Seeing a stopping distance does not make a ride legal.",
+  "class-2":
+    "20 mph is this class's maximum assisted speed, used only as a starting point for the simulator. Seeing a stopping distance does not make a ride legal.",
+  "class-3":
+    "28 mph is this class's maximum assisted speed, used only as a starting point for the simulator. Seeing a stopping distance does not make a ride legal, and it does not change the age result above.",
+  "needs-verification":
+    "The class is unverified, so no speed is assumed for this vehicle. The simulator still lets you explore how stopping distance grows with speed.",
+};
+
+
 
 const AGE_TONE = {
   permitted: "bg-ok-soft text-foreground",
@@ -96,7 +112,14 @@ export function RiderRules({
   }
 
   if (result) {
-    return <RiderResultCard result={result} localRules={localRules} onEdit={clearResult} />;
+    return (
+      <RiderResultCard
+        result={result}
+        localRules={localRules}
+        classSelection={classSelection}
+        onEdit={clearResult}
+      />
+    );
   }
 
 
@@ -215,10 +238,12 @@ export function RiderRules({
 function RiderResultCard({
   result,
   localRules,
+  classSelection,
   onEdit,
 }: {
   result: RiderRulesResult;
   localRules: LocalRulesResult | null;
+  classSelection: RiderClassSelection;
   onEdit: () => void;
 }) {
   return (
@@ -304,6 +329,26 @@ function RiderResultCard({
       </div>
 
       {localRules ? <LocalRulesCard localRules={localRules} /> : null}
+
+      {/* Next step: safety education only — never a statement about legality. */}
+      <div className="surface-card px-5 py-5 sm:px-7">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Next step
+        </h3>
+        <Link
+          to="/stopping"
+          search={toStoppingSearch(classSelection)}
+          className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <Timer className="size-4" aria-hidden="true" />
+          {stoppingActionLabel(classSelection)}
+        </Link>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          {STOPPING_ACTION_NOTE[classSelection]}
+        </p>
+      </div>
+
+
 
 
       <div className="rounded-xl border border-border bg-muted px-4 py-3 text-sm leading-relaxed text-muted-foreground">
