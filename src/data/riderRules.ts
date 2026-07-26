@@ -17,12 +17,15 @@ export const RIDER_RULES = {
   MAX_AGE: 120,
 } as const;
 
-/** Validation messages for the rider-age input. */
+/** Single accessible validation message for every invalid rider-age input. */
+export const AGE_VALIDATION_MESSAGE = "Enter a whole-number age from 1 to 120.";
+
+/** Validation messages for the rider-age input (all cases share one message). */
 export const AGE_VALIDATION_MESSAGES = {
-  blank: "Enter the rider's age in years.",
-  notWhole: "Enter the age as a whole number of years (no decimals).",
-  tooLow: "Enter an age of at least 1 year.",
-  tooHigh: "Enter an age of 120 years or less.",
+  blank: AGE_VALIDATION_MESSAGE,
+  notWhole: AGE_VALIDATION_MESSAGE,
+  tooLow: AGE_VALIDATION_MESSAGE,
+  tooHigh: AGE_VALIDATION_MESSAGE,
 } as const;
 
 /** What this module explicitly does not check. */

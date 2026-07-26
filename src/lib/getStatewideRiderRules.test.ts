@@ -2,6 +2,7 @@
  * Verification cases for the statewide rider-rules logic.
  */
 import { describe, expect, it } from "vitest";
+import { AGE_VALIDATION_MESSAGE } from "@/data/riderRules";
 import { getStatewideRiderRules, isValidAge, validateAge } from "@/lib/getStatewideRiderRules";
 import type { RiderClassSelection } from "@/types/riderRules";
 
@@ -101,5 +102,48 @@ describe("age validation", () => {
   it("accepts a whole number in range", () => {
     expect(validateAge("16")).toEqual({ valid: true, value: 16 });
     expect(isValidAge(120)).toBe(true);
+  });
+
+  it("rejects non-numeric text", () => {
+    expect(validateAge("abc").valid).toBe(false);
+    expect(validateAge("17abc").valid).toBe(false);
+  });
+
+  it("uses one accessible message for every invalid value", () => {
+    for (const raw of ["", " ", "12.5", "0", "-3", "121", "abc"]) {
+      const v = validateAge(raw);
+      expect(v.valid).toBe(false);
+      if (!v.valid) expect(v.message).toBe(AGE_VALIDATION_MESSAGE);
+    }
+  });
+});
+
+/**
+ * Regression: after a valid age produces a result, changing the raw field to an
+ * invalid value must block a new result — the last valid age is never reused.
+ */
+describe("stale-age regression: valid age then invalid raw value", () => {
+  const submit = (raw: string) => {
+    const v = validateAge(raw);
+    return v.valid
+      ? getStatewideRiderRules({ ageYears: v.value, classSelection: "needs-verification" })
+      : null;
+  };
+
+  it("produces a result for a valid age 17", () => {
+    expect(submit("17")).not.toBeNull();
+  });
+
+  it.each([
+    ["cleared", ""],
+    ["decimal", "17.5"],
+    ["zero", "0"],
+    ["over 120", "121"],
+  ])("blocks the result and shows validation when the age is %s", (_label, raw) => {
+    expect(submit("17")).not.toBeNull();
+    const v = validateAge(raw);
+    expect(v.valid).toBe(false);
+    if (!v.valid) expect(v.message).toBe(AGE_VALIDATION_MESSAGE);
+    expect(submit(raw)).toBeNull();
   });
 });
