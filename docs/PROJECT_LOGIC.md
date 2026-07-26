@@ -246,7 +246,7 @@ speedometer yes, not advertised as modifiable.
 12. (Case 11b) Unsure about the unlock → `needs-verification`.
 13. (Case 12) Every result has exactly 7 triggering specs and at least one source.
 
-### `src/lib/getStatewideRiderRules.test.ts` (14 cases)
+### `src/lib/getStatewideRiderRules.test.ts` (21 cases)
 1. Age 15 + Class 1 → permitted, helmet required.
 2. Age 15 + Class 2 → permitted, helmet required.
 3. Age 15 + Class 3 → not permitted, helmet required.
@@ -262,6 +262,14 @@ speedometer yes, not advertised as modifiable.
 12. Every result carries the three official leginfo sources.
 13. `validateAge` rejects blank, decimal, zero, negative and over-120 input.
 14. `validateAge` accepts a whole number in range; `isValidAge(120)` is true.
+15. `validateAge` rejects non-numeric text (`"abc"`, `"17abc"`).
+16. Every invalid value returns the single message
+    "Enter a whole-number age from 1 to 120."
+17. A valid age 17 produces a result (baseline for the regression cases below).
+18–21. Stale-age regression: after a valid age 17 result, re-submitting with a
+    cleared field, a decimal, `0`, or `121` blocks the result (`null`) and returns
+    the validation message — the last valid age is never reused.
+
 
 ### `src/lib/stoppingDistance.test.ts` (5 cases)
 Dry pavement (μ = 0.70), 1.5 s reaction time unless noted:
