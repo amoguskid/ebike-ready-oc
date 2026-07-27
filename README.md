@@ -215,7 +215,7 @@ at display time (`roundFeet`).
 
 ## Testing
 
-Current verified state: **209 passing automated tests across 14 test files**,
+Current verified state: **213 passing automated tests across 15 test files**,
 with clean TypeScript type checking (no type errors).
 
 Important edge cases covered by the existing test files:
@@ -224,6 +224,12 @@ Important edge cases covered by the existing test files:
   including the Class 3 speedometer requirement (No → not an e-bike, Unsure →
   Needs Verification), the manufacturer-advertised-modification cases, and the
   no-operable-pedals result.
+- `src/components/classifier/RecallCheck.test.tsx` — the optional CPSC recall
+  card: a successful API result rendering product, hazard, remedy and the
+  official CPSC link; the no-results warning with the safety note; the
+  service-error state; and that an empty or one-character query keeps the
+  button disabled and never calls the API (the search function is injected, so
+  no real network call is made in tests).
 - `src/components/classifier/ClassifierForm.test.tsx` — step visibility,
   Next/Back navigation, answer persistence across steps, submit only on Step 3,
   Edit answers / Start over, and the `/rules?class=…` handoff.
@@ -317,7 +323,7 @@ npm install
 # 2. Start the development server
 npm run dev
 
-# 3. Run the automated tests (208 tests)
+# 3. Run the automated tests (213 tests)
 npx vitest run
 
 # 4. Type-check the project
