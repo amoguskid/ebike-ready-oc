@@ -144,6 +144,34 @@ describe("classifyVehicle", () => {
   });
 
 
+  // 11c. Multiple independent failures must ALL be reported.
+  it("Case 11c — 1000W, 32 mph throttle, 32 mph assist => all three reasons reported", () => {
+    const result = classifyVehicle(
+      v({
+        motorWatts: { known: true, value: 1000 },
+        motorPropelsWithoutPedaling: "yes",
+        maxMotorOnlySpeedMph: { known: true, value: 32 },
+        maxPedalAssistedSpeedMph: { known: true, value: 32 },
+      }),
+    );
+    expect(result.code).toBe("not-an-ebike");
+    expect(result.failedChecks.map((f) => f.label)).toEqual([
+      "Motor power",
+      "Motor-only (throttle) speed",
+      "Pedal-assisted speed",
+    ]);
+    const text = [result.explanation, ...result.failedChecks.map((f) => f.detail)].join(" ");
+    expect(text).toContain("1000 watts");
+    expect(text).toContain("750-watt limit");
+    expect(text).toContain("32 mph without any pedaling");
+    expect(text).toContain("20 mph (Class 2)");
+    expect(text).toContain("28 mph (Class 3)");
+    expect(result.explanation).toContain(
+      "This vehicle falls outside all three California e-bike classes because multiple specifications exceed the legal limits.",
+    );
+    expect(result.explanation).not.toContain("Because of that single specification");
+  });
+
   // 12. Every result always carries the specs and official sources.
   it("Case 12 — every result includes triggering specs and sources", () => {
     const result = classifyVehicle(base);

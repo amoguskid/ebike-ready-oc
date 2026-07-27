@@ -7,6 +7,7 @@ import {
   ExternalLink,
   HelpCircle,
   Info,
+  XCircle,
 } from "lucide-react";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
 import { toRulesClassParam } from "@/lib/classHandoff";
@@ -81,6 +82,25 @@ export function ResultCard({
           <h2 className="mt-3 text-2xl font-bold sm:text-3xl">{result.title}</h2>
           <p className="mt-2 text-base leading-relaxed text-foreground/80">{result.explanation}</p>
         </div>
+
+        {result.failedChecks.length > 0 ? (
+          <div className="border-t border-border px-5 py-5 sm:px-7">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Why it failed
+            </h3>
+            <ul className="mt-3 space-y-3">
+              {result.failedChecks.map((check) => (
+                <li key={check.label} className="flex gap-2.5 text-sm leading-relaxed">
+                  <XCircle className="mt-0.5 size-4 shrink-0 text-alert" aria-hidden="true" />
+                  <span>
+                    <span className="font-semibold">Failed check — {check.label}:</span>{" "}
+                    <span className="text-foreground/80">{check.detail}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         {result.warnings.length > 0 ? (
           <div className="border-t border-border px-5 py-5 sm:px-7">
