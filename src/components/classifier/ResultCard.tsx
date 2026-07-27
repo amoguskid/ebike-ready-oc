@@ -9,6 +9,7 @@ import {
   Info,
   XCircle,
 } from "lucide-react";
+import { RecallCheck } from "@/components/classifier/RecallCheck";
 import { DISCLAIMER, LEGAL_REVIEW_DATE } from "@/data/californiaRules";
 import { toRulesClassParam } from "@/lib/classHandoff";
 import { cn } from "@/lib/utils";
