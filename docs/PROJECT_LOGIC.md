@@ -8,16 +8,17 @@ file names, functions, constants and behaviors below were read from the source.
 ## 1. Purpose and modules
 
 E-Bike Ready OC is a mobile-first React + TypeScript educational prototype about
-electric-bicycle law and safety in California. It has a Home page and four
+electric-bicycle law and safety in California. It has a Home page and five
 working modules:
 
 | Page / Module | Route | Purpose |
 | --- | --- | --- |
-| **Home** | `/` (`src/routes/index.tsx`) | Landing page: hero, four feature cards linking to the modules, trust statement and legal review date. No legal logic. |
+| **Home** | `/` (`src/routes/index.tsx`) | Landing page: hero, feature cards linking to the modules, trust statement and legal review date. No legal logic. |
 | **Class Checker** | `/classify` (`src/routes/classify.tsx`) | Asks seven questions about a vehicle and returns a California classification: Class 1, Class 2, Class 3, "Does Not Meet California E-Bike Definition", or "Needs Verification". |
+| **Ride Check** | `/rules` (`src/routes/rules.tsx`) | Combines rider age, e-bike class, helmet status, city and planned riding location into a single verdict: "Likely permitted", "Verify before riding" or "Do not ride". |
 | **Stopping-Distance Simulator** | `/stopping` (`src/routes/stopping.tsx`) | Estimates reaction, braking and total stopping distance from speed, reaction time and road surface. |
-| **Decision Scenarios** | `/scenarios` (`src/routes/scenarios.tsx`) | A five-question learning activity that restates rules and estimates already verified in the other modules. No new legal rules. |
-| **Rider Rules** | `/rules` (`src/routes/rules.tsx`) | Takes a rider age and an e-bike class and returns California's **statewide** age and helmet result, plus an optional local-rules card for five verified Orange County cities (Anaheim, Cypress, Garden Grove, Los Alamitos, Stanton). A city selection never changes the statewide result. |
+| **Decision Scenarios** | `/scenarios` (`src/routes/scenarios.tsx`) | A six-question learning activity that restates rules and estimates already verified in the other modules. No new legal rules. |
+| **Sources & Methodology** | `/sources` (`src/routes/sources.tsx`) | Lists every statewide and city source the app uses, explains how the app reaches a result, and states the app's coverage limits. |
 
 ### Branding shell and navigation (Design Polish Build 1)
 
@@ -329,7 +330,7 @@ California e-bike class.
 
 ## 7. Verified test cases
 
-Run everything with `bunx vitest run`.
+Run everything with `npx vitest run`.
 
 ### `src/lib/classifyVehicle.test.ts` (15 cases)
 All start from a base vehicle: pedals yes, 500 W, no throttle, assist 20 mph,
@@ -453,7 +454,7 @@ pure scoring in `src/lib/scenarioScoring.ts` (`evaluateAnswer`, `scoreAnswers`,
 `src/components/scenarios/DecisionScenarios.tsx`. The component holds only the
 current index, the recorded answers and the current selection.
 
-**Tests:** `src/lib/scenarioScoring.test.ts` (14 cases) covers all five correct
+**Tests:** `src/lib/scenarioScoring.test.ts` (14 cases) covers all six correct
 answers, no credit for incorrect or unknown choices, a mixed run, per-scenario
 single credit, progress advance and clamping, completion, score totals, the
 "Try again" reset, source-to-scenario isolation (§21212 only on scenario 4,
@@ -607,8 +608,10 @@ the under-18 helmet rule:
 
 ## 10. Checklist — what Nathan must understand and explain
 
-- [ ] The app has two modules — Class Checker (default route `/`) and Stopping
-      Simulator (`/stopping`) — and where the nav lives (`src/routes/__root.tsx`).
+- [ ] The app has a Home page (`/`) and five modules — Class Checker
+      (`/classify`), Ride Check (`/rules`), Stopping-Distance Simulator
+      (`/stopping`), Decision Scenarios (`/scenarios`) and Sources & Methodology
+      (`/sources`) — and where the nav lives (`src/routes/__root.tsx`).
 - [ ] All seven classifier inputs, their units, and why every one allows
       "Unsure" or "Unknown".
 - [ ] The three numeric thresholds from `CA_RULES`: 750 W, 20 mph, 28 mph, plus
@@ -629,6 +632,6 @@ the under-18 helmet rule:
 - [ ] The three verification results: 63 ft at 20 mph, 99 ft at 28 mph, 164 ft
       at 40 mph — dry pavement, 1.5 s reaction — and why 40 mph is comparison
       only.
-- [ ] How to run the tests (`bunx vitest run`) and what each test proves.
+- [ ] How to run the tests (`npx vitest run`) and what each test proves.
 - [ ] The legal and physics limitations in section 8, and the meaning of the
       "last reviewed: July 2026" date.
