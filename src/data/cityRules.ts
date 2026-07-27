@@ -2,7 +2,7 @@
  * CENTRALIZED, VERIFIED ORANGE COUNTY CITY-RULES DATA.
  *
  * Local rules ONLY. Nothing here may change a statewide age or helmet result.
- * Coverage is intentionally limited to the four cities reviewed against official
+ * Coverage is intentionally limited to the five cities reviewed against official
  * sources on the date in `CITY_RULES_VERIFIED_DATE`. This is NOT comprehensive
  * Orange County coverage and is not legal advice.
  */
