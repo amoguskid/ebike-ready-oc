@@ -131,6 +131,12 @@ function HomePage() {
           <div className="max-w-2xl">
             <p>{TRUST_STATEMENT}</p>
             <p className="mt-1.5 text-xs font-medium">{LEGAL_REVIEW_DATE}</p>
+            <Link
+              to="/sources"
+              className="mt-2 inline-flex min-h-11 items-center rounded-lg text-sm font-semibold text-primary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              See sources &amp; methodology
+            </Link>
           </div>
         </div>
       </section>
