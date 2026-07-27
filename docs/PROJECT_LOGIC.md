@@ -606,6 +606,15 @@ record, and both the Ride Check verdict and the scenario move together.
 - Results are estimates, per `SIMULATOR_DISCLAIMER` — never guaranteed
   stopping distances.
 
+**Recall lookup**
+- The recall card queries the live CPSC Recall REST API by title text only. It
+  is a keyword match on brand or model wording, not a serial-number or exact
+  model lookup, and it shows at most five matches.
+- Results depend on a third-party service that can be slow, incomplete or
+  unavailable; the card shows an explicit service-error state when it fails.
+- No result does not guarantee the product is safe or recall-free.
+
+
 ---
 
 ## 9. Official California sources
