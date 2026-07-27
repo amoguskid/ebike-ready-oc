@@ -23,6 +23,7 @@ import {
 } from "@/data/californiaRules";
 import type {
   ClassificationCode,
+  FailedCheck,
   ClassificationResult,
   NumericAnswer,
   TriState,
@@ -71,6 +72,7 @@ function build(
   explanation: string,
   warnings: string[],
   input: VehicleInput,
+  failedChecks: FailedCheck[] = [],
 ): ClassificationResult {
   const allWarnings = [...warnings, ...(CLASS_RIDER_NOTES[code] ?? [])];
   const mentionsUnder18Helmet = allWarnings.some(
@@ -83,6 +85,7 @@ function build(
     explanation,
     warnings: allWarnings,
     triggeringSpecs: specList(input),
+    failedChecks,
     sources: mentionsUnder18Helmet
       ? [...CA_SOURCES, HELMET_UNDER_18_SOURCE]
       : [...CA_SOURCES],
@@ -96,68 +99,66 @@ function build(
 export function classifyVehicle(input: VehicleInput): ClassificationResult {
   const warnings: string[] = [];
 
-  /* RULE 0 — Manufacturer advertises an unlock / de-restriction beyond the
-     California limits => excluded from the e-bike definition entirely. */
+  /* RULES 0-4 — Collect EVERY confirmed specification that independently puts
+     this vehicle outside California's electric-bicycle definition. The
+     classifier reports all of them together instead of stopping at the first. */
+  const failed: FailedCheck[] = [];
+
   if (isYes(input.advertisedAsModifiable)) {
-    return build(
-      "not-an-ebike",
-      "Does Not Meet California E-Bike Definition",
-      `California Vehicle Code § 312.5(d)(1) excludes a vehicle that the manufacturer intends to be modifiable — through an unlock, de-restriction, app setting, or other modification — so that it can exceed ${CA_RULES.MAX_THROTTLE_ONLY_MPH} mph on motor power alone or exceed ${CA_RULES.MAX_MOTOR_WATTS} watts. Because the manufacturer advertises that capability, this vehicle is not an electric bicycle under California law, even if it is currently set to lower limits.`,
-      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
-      input,
-    );
+    failed.push({
+      label: "Manufacturer-advertised modification",
+      detail: `California Vehicle Code § 312.5(d)(1) excludes a vehicle that the manufacturer intends to be modifiable — through an unlock, de-restriction, app setting, or other modification — so that it can exceed ${CA_RULES.MAX_THROTTLE_ONLY_MPH} mph on motor power alone or exceed ${CA_RULES.MAX_MOTOR_WATTS} watts. Because the manufacturer advertises that capability, this vehicle is not an electric bicycle under California law, even if it is currently set to lower limits.`,
+    });
   }
 
-  /* RULE 1 — No operable pedals => not an electric bicycle. */
   if (isNo(input.hasOperablePedals)) {
-    return build(
-      "not-an-ebike",
-      "Does Not Meet California E-Bike Definition",
-      "This vehicle does not meet California's electric-bicycle definition because it does not have fully operable pedals. Its correct legal category depends on additional specifications. Verify the category and applicable riding requirements with the California DMV or CHP before using it on public roads or paths.",
-      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
-      input,
-    );
+    failed.push({
+      label: "Operable pedals",
+      detail:
+        "This vehicle does not have fully operable pedals, which California requires for every class of electric bicycle.",
+    });
   }
 
-  /* RULE 2 — Motor over 750 W => not an electric bicycle. */
   if (known(input.motorWatts) && input.motorWatts.value > CA_RULES.MAX_MOTOR_WATTS) {
-    return build(
-      "not-an-ebike",
-      "Does Not Meet California E-Bike Definition",
-      `The motor is rated at ${input.motorWatts.value} watts, which is above California's ${CA_RULES.MAX_MOTOR_WATTS}-watt limit for an electric bicycle. Because of that single specification, this vehicle falls outside all three e-bike classes.`,
-      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
-      input,
-    );
+    failed.push({
+      label: "Motor power",
+      detail: `The motor is rated at ${input.motorWatts.value} watts, which is above California's ${CA_RULES.MAX_MOTOR_WATTS}-watt limit for an electric bicycle.`,
+    });
   }
 
-
-  /* RULE 3 — Pedal-assist above the Class 3 ceiling => not an electric bicycle. */
-  if (
-    known(input.maxPedalAssistedSpeedMph) &&
-    input.maxPedalAssistedSpeedMph.value > CA_RULES.CLASS_3_MAX_ASSIST_MPH
-  ) {
-    return build(
-      "not-an-ebike",
-      "Does Not Meet California E-Bike Definition",
-      `The motor keeps assisting up to ${input.maxPedalAssistedSpeedMph.value} mph. The highest assisted speed any California e-bike class allows is ${CA_RULES.CLASS_3_MAX_ASSIST_MPH} mph (Class 3), so this vehicle is not an electric bicycle.`,
-      [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
-      input,
-    );
-  }
-
-  /* RULE 4 — Throttle faster than 20 mph => not an electric bicycle.
-     California only allows motor-only (throttle) assist up to 20 mph. */
   if (
     isYes(input.motorPropelsWithoutPedaling) &&
     known(input.maxMotorOnlySpeedMph) &&
     input.maxMotorOnlySpeedMph.value > CA_RULES.MAX_THROTTLE_ONLY_MPH
   ) {
+    failed.push({
+      label: "Motor-only (throttle) speed",
+      detail: `The motor can propel this vehicle to ${input.maxMotorOnlySpeedMph.value} mph without any pedaling. California allows throttle power only up to ${CA_RULES.MAX_THROTTLE_ONLY_MPH} mph (Class 2).`,
+    });
+  }
+
+  if (
+    known(input.maxPedalAssistedSpeedMph) &&
+    input.maxPedalAssistedSpeedMph.value > CA_RULES.CLASS_3_MAX_ASSIST_MPH
+  ) {
+    failed.push({
+      label: "Pedal-assisted speed",
+      detail: `The motor keeps assisting up to ${input.maxPedalAssistedSpeedMph.value} mph. The highest assisted speed any California e-bike class allows is ${CA_RULES.CLASS_3_MAX_ASSIST_MPH} mph (Class 3).`,
+    });
+  }
+
+  if (failed.length > 0) {
+    const closing =
+      failed.length > 1
+        ? " This vehicle falls outside all three California e-bike classes because multiple specifications exceed the legal limits."
+        : " This vehicle therefore falls outside all three California e-bike classes.";
     return build(
       "not-an-ebike",
       "Does Not Meet California E-Bike Definition",
-      `The motor can propel this vehicle to ${input.maxMotorOnlySpeedMph.value} mph without any pedaling. California allows throttle power only up to ${CA_RULES.MAX_THROTTLE_ONLY_MPH} mph (Class 2), so this vehicle is not an electric bicycle.`,
+      failed.map((f) => f.detail).join(" ") + closing,
       [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
+      failed,
     );
   }
 
@@ -216,6 +217,12 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
         UNCLASSIFIED_VEHICLE_NOTE,
       ],
       input,
+      [
+        {
+          label: "Throttle with pedal assist above 20 mph",
+          detail: `This vehicle has a throttle and keeps assisting up to ${assist} mph, above California's ${CA_RULES.CLASS_1_2_MAX_ASSIST_MPH} mph limit for throttle-equipped electric bicycles.`,
+        },
+      ],
     );
   }
 
@@ -253,6 +260,13 @@ export function classifyVehicle(input: VehicleInput): ClassificationResult {
       "This vehicle's speed and pedal-assist behavior otherwise match Class 3, but California Vehicle Code §312.5(a)(3) requires a Class 3 electric bicycle to be equipped with a speedometer. As currently equipped, this vehicle does not meet the Class 3 definition.",
       [...warnings, UNCLASSIFIED_VEHICLE_NOTE],
       input,
+      [
+        {
+          label: "Speedometer",
+          detail:
+            "California Vehicle Code §312.5(a)(3) requires a Class 3 electric bicycle to be equipped with a speedometer, and this vehicle does not have one.",
+        },
+      ],
     );
   }
 
