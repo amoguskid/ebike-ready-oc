@@ -2,8 +2,8 @@
 
 A mobile-first React + TypeScript web app that helps riders and families in Orange County, California understand e-bike classification, rider rules, local city rules and stopping distance.
 
-- **Public app URL:** https://ebikepedia-checker.lovable.app/
-- **Sources page:** https://ebikepedia-checker.lovable.app/sources
+- **Public app URL:** https://ebike-ready-oc.lovable.app/
+- **Sources page:** https://ebike-ready-oc.lovable.app/sources
 
 This app provides educational information only. It is not legal advice.
 
@@ -253,7 +253,7 @@ Orange County cities (Anaheim, Cypress, Garden Grove, Los Alamitos and Stanton).
 
 Every citation used by the app, what it is used for, and a link to the official
 text are listed on the Sources & Methodology page:
-https://ebikepedia-checker.lovable.app/sources
+https://ebike-ready-oc.lovable.app/sources
 
 Legal information was last reviewed in **July 2026**. Laws, local codes and
 posted signs can change, so check the current official source before you ride.
