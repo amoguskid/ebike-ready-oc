@@ -99,6 +99,31 @@ client-side from constants stored in the repository.
   (`FieldShell`, `TriStateField`, `NumericField`),
   `src/components/classifier/ResultCard.tsx` (`ResultCard`).
 
+### Optional CPSC recall lookup (not part of the rules engine)
+- `src/lib/recalls.ts` — pure data helpers: `CPSC_RECALL_API`,
+  `MAX_RECALL_RESULTS` (5), `MIN_RECALL_QUERY_LENGTH` (2),
+  `RECALL_SAFETY_NOTE`, `buildRecallSearchUrl`, `isSearchableRecallQuery`,
+  `parseRecalls` (maps the CPSC payload to at most five matches with title,
+  formatted date, recall number, product, hazard, remedy and URL) and
+  `fetchRecalls` (never throws; returns `{ status: "ok", results }` or
+  `{ status: "error" }`).
+- `src/lib/recalls.functions.ts` — `searchRecalls`, a TanStack server function
+  that proxies the live public CPSC Recall REST API
+  (`https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallTitle=…`)
+  so the browser is not blocked by CORS.
+- `src/components/classifier/RecallCheck.tsx` — the optional "Check official
+  recalls" card rendered after the classification result on `/classify`. It
+  has idle, loading, results, no-results and service-error states, a search
+  button disabled until two characters are entered, and always displays:
+  "No result does not guarantee the product is safe or recall-free. Check the
+  exact model and serial number with the manufacturer and CPSC."
+- **Isolation rule:** recall data is live third-party data and is never read by
+  `classifyVehicle()`, `evaluateRideDecision()` or any other rules module. A
+  recall match — or the absence of one — can never change a vehicle's legal
+  classification. Tests: `src/components/classifier/RecallCheck.test.tsx`
+  (5 cases, injected search function, no real network call).
+
+
 ### Stopping simulator
 - `src/lib/stoppingDistance.ts` — pure physics, no React:
   constants `MPH_TO_METERS_PER_SECOND`, `METERS_TO_FEET`, `GRAVITY_MPS2`,
