@@ -104,9 +104,11 @@ export function RecallCheck({
             Search recalls
           </button>
         </div>
-        <p id="recall-query-hint" className="mt-2 text-xs text-muted-foreground">
-          Enter at least {MIN_RECALL_QUERY_LENGTH} characters to search.
-        </p>
+        {phase === "idle" && query.trim().length < MIN_RECALL_QUERY_LENGTH ? (
+          <p id="recall-query-hint" className="mt-2 text-xs text-muted-foreground">
+            Enter at least {MIN_RECALL_QUERY_LENGTH} characters to search.
+          </p>
+        ) : null}
       </form>
 
       <div aria-live="polite" className="px-5 pb-5 sm:px-7">
@@ -130,11 +132,8 @@ export function RecallCheck({
         {phase === "empty" ? (
           <p className="flex gap-2.5 rounded-xl border border-border bg-caution-soft px-4 py-3 text-sm leading-relaxed">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-caution" aria-hidden="true" />
-            <span>
-              <span className="font-semibold">
-                No CPSC recalls matched &ldquo;{searchedFor}&rdquo;.
-              </span>{" "}
-              {RECALL_SAFETY_NOTE}
+            <span className="font-semibold">
+              No CPSC recalls matched &ldquo;{searchedFor}&rdquo;.
             </span>
           </p>
         ) : null}
