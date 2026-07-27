@@ -48,6 +48,14 @@ export interface TriggeringSpec {
   value: string;
 }
 
+/** A single confirmed specification that disqualifies the vehicle. */
+export interface FailedCheck {
+  /** Short label, e.g. "Motor power". */
+  label: string;
+  /** Plain-language sentence explaining why this check failed. */
+  detail: string;
+}
+
 /** An official California reference shown on the result card. */
 export interface SourceLink {
   label: string;
@@ -66,6 +74,8 @@ export interface ClassificationResult {
   warnings: string[];
   /** The specs that drove the decision. */
   triggeringSpecs: TriggeringSpec[];
+  /** Every confirmed specification that independently fails the definition. */
+  failedChecks: FailedCheck[];
   /** Official California sources to verify against. */
   sources: SourceLink[];
 }
