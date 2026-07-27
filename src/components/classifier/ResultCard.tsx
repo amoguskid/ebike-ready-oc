@@ -165,6 +165,10 @@ export function ResultCard({
         </div>
       </div>
 
+      <RecallCheck />
+
+
+
       {handoffClass ? (
         <Link
           to="/rules"
