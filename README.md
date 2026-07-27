@@ -203,7 +203,7 @@ at display time (`roundFeet`).
 
 ## Testing
 
-Current verified state: **208 passing automated tests across 14 test files**,
+Current verified state: **209 passing automated tests across 14 test files**,
 with clean TypeScript type checking (no type errors).
 
 Important edge cases covered by the existing test files:
